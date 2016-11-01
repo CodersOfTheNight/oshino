@@ -71,8 +71,10 @@ class Config(ConfigBase):
 
     @property
     def riemann(self):
-        return RiemannConfig(self._data.get("riemann",
-                                            RiemannConfig.default()))
+        if "riemann" in self._data:
+            return RiemannConfig(self._data["riemann"])
+        else:
+            return RiemannConfig.default()
 
     @property
     def interval(self):
