@@ -1,0 +1,5 @@
+---
+interval: 10
+riemann:
+  host: localhost
+  port: 5555
