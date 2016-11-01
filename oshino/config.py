@@ -75,7 +75,7 @@ class Config(ConfigBase):
 
     @property
     def agents(self):
-        return [AgentConfig(a) for a in self._data["agents"]]
+        return [AgentConfig(a) for a in self._data.get("agents", [])]
 
 
 def load(config_file):
