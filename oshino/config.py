@@ -41,6 +41,14 @@ class AgentConfig(ConfigBase):
     def __init__(self, cfg):
         self._data = cfg
 
+    @property
+    def name(self):
+        return self._data["name"]
+
+    @property
+    def module(self):
+        return self._data["module"]
+
 
 class Config(ConfigBase):
 
