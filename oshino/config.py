@@ -31,6 +31,12 @@ class RiemannConfig(ConfigBase):
     def port(self):
         return int(self._data["port"])
 
+    @staticmethod
+    def default():
+        return RiemannConfig({"host": "localhost",
+                              "port": 5555
+                              })
+
 
 class AgentConfig(ConfigBase):
 
@@ -67,7 +73,8 @@ class Config(ConfigBase):
 
     @property
     def riemann(self):
-        return RiemannConfig(self._data["riemann"])
+        return RiemannConfig(self._data.get("riemann",
+                                            RiemannConfig.default()))
 
     @property
     def interval(self):
