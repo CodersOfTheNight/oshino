@@ -27,7 +27,7 @@ async def main_loop(cfg: Config, logger: Logger):
     client = QueuedClient(transport)
     while True:
         send_heartbeat(client, logger)
-        asyncio.sleep(cfg.interval)
+        await asyncio.sleep(cfg.interval)
         flush_riemann(client, transport, logger)
 
 
