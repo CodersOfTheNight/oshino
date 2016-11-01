@@ -19,14 +19,14 @@ def incomplete_config():
 
 class TestBase(object):
 
-    def test_base_config_interval(base_config):
+    def test_base_config_interval(self, base_config):
         assert base_config.interval == 5
 
 
 class TestRiemann(object):
 
-    def test_base_config_get_riemann(base_config):
+    def test_base_config_get_riemann(self, base_config):
         assert isinstance(base_config.riemann, RiemannConfig)
 
-    def test_incomplete_config_get_riemann(incomplete_config):
+    def test_incomplete_config_get_riemann(self, incomplete_config):
         assert isinstance(incomplete_config.riemann, RiemannConfig)
