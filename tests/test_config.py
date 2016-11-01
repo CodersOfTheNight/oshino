@@ -29,7 +29,9 @@ class TestRiemann(object):
         assert isinstance(base_config.riemann, RiemannConfig)
 
     def test_incomplete_config_get_riemann(self, incomplete_config):
-        assert isinstance(incomplete_config.riemann, RiemannConfig)
+        obj = incomplete_config.riemann
+        assert isinstance(obj, RiemannConfig)
+        assert isinstance(obj._data, dict)
 
     def test_riemann_default_host(self, incomplete_config):
         assert incomplete_config.riemann.host == "localhost"
