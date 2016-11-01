@@ -1,7 +1,12 @@
 click==6.6
+coverage==4.2
 Jinja2==2.8
+Logbook==1.0.0
 MarkupSafe==0.23
 protobuf==3.1.0.post1
+py==1.4.31
+pytest==3.0.3
+pytest-cov==2.4.0
 python-dotenv==0.6.0
 PyYAML==3.12
 requests==2.11.1
