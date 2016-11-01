@@ -62,7 +62,7 @@ class AgentConfig(ConfigBase):
         return self._instance
 
     def is_valid(self):
-        pass
+        return self.instance.is_valid()
 
 
 class Config(ConfigBase):

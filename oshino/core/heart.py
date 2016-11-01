@@ -25,8 +25,11 @@ async def main_loop(cfg: Config, logger: Logger):
     riemann = cfg.riemann
     transport = TCPTransport(riemann.host, riemann.port)
     client = QueuedClient(transport)
+    agents = list(map(lambda x: x.instance, cfg.agents))
     while True:
         send_heartbeat(client, logger)
+        for agent in agents:
+            await agent.process(client, logger)
         await asyncio.sleep(cfg.interval)
         flush_riemann(client, transport, logger)
 
