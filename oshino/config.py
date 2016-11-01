@@ -25,17 +25,15 @@ class RiemannConfig(ConfigBase):
 
     @property
     def host(self):
-        return self._data["host"]
+        return self._data.get("host", "localhost")
 
     @property
     def port(self):
-        return int(self._data["port"])
+        return int(self._data.get("port", 5555))
 
     @staticmethod
     def default():
-        return RiemannConfig({"host": "localhost",
-                              "port": 5555
-                              })
+        return RiemannConfig({})
 
 
 class AgentConfig(ConfigBase):
