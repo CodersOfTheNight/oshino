@@ -8,6 +8,6 @@ from ..version import get_version
 
 def start_loop(cfg: Config):
     logger = Logger("Heart")
-    loop = asyncio.get_loop()
+    loop = asyncio.get_event_loop()
 
     logger.info("Initializing Oshino v{0}".format(get_version()))
