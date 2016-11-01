@@ -50,6 +50,10 @@ class Config(ConfigBase):
     def riemann(self):
         return RiemannConfig(self._data["riemann"])
 
+    @property
+    def interval(self):
+        return self._data["interval"]
+
 
 def load(config_file):
     """
