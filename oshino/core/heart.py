@@ -13,13 +13,22 @@ from . import send_heartbeat
 loop = asyncio.get_event_loop()
 
 
-async def main_loop(cfg: Config):
+def flush_riemann(client, transport, logger):
+    try:
+        transport.connect()
+        client.flush()
+        transport.disconnect()
+    except ConnectionRefusedError as ce:
+        logger.warn(ce)
+
+async def main_loop(cfg: Config, logger: Logger):
     riemann = cfg.riemann
+    transport = TCPTransport(riemann.host, riemann.port)
+    client = QueuedClient(transport)
     while True:
-        with QueuedClient(TCPTransport(riemann.host, riemann.port)) as client:
-            send_heartbeat(client, logger)
-            asyncio.sleep(cfg.interval)
-            client.flush()
+        send_heartbeat(client, logger)
+        asyncio.sleep(cfg.interval)
+        flush_riemann(client, transport, logger)
 
 
 def start_loop(cfg: Config):
@@ -29,6 +38,6 @@ def start_loop(cfg: Config):
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
                 .format(cfg.interval))
     try:
-        loop.run_until_complete(main_loop(cfg))
+        loop.run_until_complete(main_loop(cfg, logger))
     finally:
         loop.close()
