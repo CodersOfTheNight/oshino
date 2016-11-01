@@ -32,6 +32,16 @@ class RiemannConfig(ConfigBase):
         return int(self._data["port"])
 
 
+class AgentConfig(ConfigBase):
+
+    """
+    Config for setuping agent
+    """
+
+    def __init__(self, cfg):
+        self._data = cfg
+
+
 class Config(ConfigBase):
 
     """
@@ -43,7 +53,8 @@ class Config(ConfigBase):
         self.is_valid()
 
     def is_valid(self):
-        checks = [self.riemann.is_valid]
+        checks = ([self.riemann.is_valid] +
+                  list(map(lambda x: x.is_valid, self.agents)))
         return all([c() for c in checks])
 
     @property
@@ -53,6 +64,10 @@ class Config(ConfigBase):
     @property
     def interval(self):
         return self._data["interval"]
+
+    @property
+    def agents(self):
+        return [AgentConfig(a) for a in self._data["agents"]]
 
 
 def load(config_file):
