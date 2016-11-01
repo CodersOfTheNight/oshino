@@ -17,13 +17,16 @@ def incomplete_config():
     return Config({})
 
 
-def test_base_config_get_riemann(base_config):
-    assert isinstance(base_config.riemann, RiemannConfig)
+class TestBase(object):
+
+    def test_base_config_interval(base_config):
+        assert base_config.interval == 5
 
 
-def test_base_config_interval(base_config):
-    assert base_config.interval == 5
+class TestRiemann(object):
 
+    def test_base_config_get_riemann(base_config):
+        assert isinstance(base_config.riemann, RiemannConfig)
 
-def test_incomplete_config_get_riemann(incomplete_config):
-    assert isinstance(incomplete_config.riemann, RiemannConfig)
+    def test_incomplete_config_get_riemann(incomplete_config):
+        assert isinstance(incomplete_config.riemann, RiemannConfig)
