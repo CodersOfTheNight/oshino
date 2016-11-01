@@ -30,3 +30,9 @@ class TestRiemann(object):
 
     def test_incomplete_config_get_riemann(self, incomplete_config):
         assert isinstance(incomplete_config.riemann, RiemannConfig)
+
+    def test_riemann_default_host(self, incomplete_config):
+        assert incomplete_config.riemann.host == "localhost"
+
+    def test_riemann_default_port(self, incomplete_config):
+        assert incomplete_config.riemann.port == 5555
