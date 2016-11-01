@@ -2,6 +2,7 @@ import os
 import yaml
 
 from jinja2 import Template
+from .util import dynamic_import
 
 
 class ConfigBase(object):
@@ -44,6 +45,7 @@ class AgentConfig(ConfigBase):
 
     def __init__(self, cfg):
         self._data = cfg
+        self._instance = None
 
     @property
     def name(self):
@@ -52,6 +54,15 @@ class AgentConfig(ConfigBase):
     @property
     def module(self):
         return self._data["module"]
+
+    @property
+    def instance(self):
+        if self._instance is None:
+            self._instance = dynamic_import(self.module)(self._data)
+        return self._instance
+
+    def is_valid(self):
+        pass
 
 
 class Config(ConfigBase):

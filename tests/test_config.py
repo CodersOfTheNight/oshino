@@ -1,6 +1,7 @@
 from pytest import fixture
 
 from oshino.config import Config, RiemannConfig
+from oshino.agents.test_agent import StubAgent
 
 
 @fixture
@@ -8,7 +9,11 @@ def base_config():
     return Config({"riemann": {"host": "localhost",
                                "port": 5555
                                },
-                   "interval": 5
+                   "interval": 5,
+                   "agents": [{"name": "test-agent",
+                               "module": "oshino.agents.test_agent.StubAgent"
+                               }
+                              ]
                    })
 
 
@@ -38,3 +43,12 @@ class TestRiemann(object):
 
     def test_riemann_default_port(self, incomplete_config):
         assert incomplete_config.riemann.port == 5555
+
+
+class TestAgents(object):
+
+    def test_agent_loader(self, base_config):
+        agents = base_config.agents
+        assert len(agents) == 1
+        obj = agents[0].instance
+        assert isinstance(obj, StubAgent)
