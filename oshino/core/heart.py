@@ -8,7 +8,7 @@ from riemann_client.client import QueuedClient
 
 from ..config import Config
 from ..version import get_version
-from .core import send_heartbeat
+from . import send_heartbeat
 
 loop = asyncio.get_event_loop()
 
