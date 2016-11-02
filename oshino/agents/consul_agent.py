@@ -1,4 +1,7 @@
 import aiohttp
+
+from functools import partial
+
 from . import Agent
 
 
@@ -23,9 +26,13 @@ class ConsulAgent(Agent):
 
     @property
     def health_url(self):
-        return ("http://{host}:{port}/v1/health/service/"
-                .format(host=self.host,
-                        port=self.port))
+        def health(host, port, service_name):
+            return ("http://{host}:{port}/v1/health/service/{service}"
+                    .format(host=host,
+                            port=port,
+                            service=service_name))
+
+        return partial(health, self.host, self.port)
 
     async def get_json(self, url):
         async with aiohttp.ClientSession() as session:
@@ -39,6 +46,9 @@ class ConsulAgent(Agent):
     @property
     async def nodes(self):
         return await self.get_json(self.nodes_url)
+
+    async def health(self, service_name):
+        return await self.get_json(self.health_url(service_name))
 
     @property
     def host(self):
@@ -54,3 +64,12 @@ class ConsulAgent(Agent):
 
         nodes = await self.nodes
         logger.debug("Got nodes: {0}".format(nodes))
+        for service_name, _ in services.items():
+            health_nodes = await self.health(service_name)
+            for node in health_nodes:
+                logger.debug("HealthInfo: {0}".format(node))
+                ok = all([check["Status"] == "passing" for check in node["Checks"]])
+                logger.debug("Node is Ok? {0}".format(ok))
+                event_fn(metric_f=1.0 if ok else 0.0,
+                         service=self.prefix + service_name,
+                         host=node["Node"])
