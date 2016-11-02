@@ -7,8 +7,12 @@ class Agent(object):
         self._data = cfg
 
     @property
+    def name(self):
+        return self._data["name"].lower().replace(" ", "-")
+
+    @property
     def prefix(self):
-        return "{0}.".format(self._data["name"])
+        return "{0}.".format(self.name)
 
     def get_logger(self):
         return Logger(self.__class__.__name__)

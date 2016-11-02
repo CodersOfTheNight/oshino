@@ -48,10 +48,6 @@ class AgentConfig(ConfigBase):
         self._instance = None
 
     @property
-    def name(self):
-        return self._data["name"]
-
-    @property
     def module(self):
         return self._data["module"]
 
