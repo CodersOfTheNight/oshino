@@ -58,6 +58,7 @@ class HttpAgent(Agent):
                                                       state=state,
                                                       span=span))
 
-        event_fn(metric_f=span,
+        event_fn(service=self.prefix + "health",
+                 metric_f=span,
                  state=str(state),
                  description=self.url)
