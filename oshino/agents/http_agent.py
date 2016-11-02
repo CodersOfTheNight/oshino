@@ -59,5 +59,5 @@ class HttpAgent(Agent):
                                                       span=span))
 
         event_fn(metric_f=span,
-                 state=state,
+                 state=str(state),
                  description=self.url)
