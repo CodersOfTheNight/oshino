@@ -30,9 +30,10 @@ async def main_loop(cfg: Config, logger: Logger):
     while True:
         send_heartbeat(client, logger)
         for agent, agent_cfg in agents:
+            tags = [agent_cfg.tag] if agent_cfg.tag else None
             event_fn = partial(client.event,
                                service=agent_cfg.name,
-                               tags=[agent_cfg.tag])
+                               tags=tags)
             await agent.process(event_fn, logger)
         await asyncio.sleep(cfg.interval)
         flush_riemann(client, transport, logger)
