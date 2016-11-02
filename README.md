@@ -5,6 +5,9 @@ Oshino - named after character Meme Oshino from anime called Bakemonogatari:
 
 Just like anime character, this service likes to deal with supernatural - system availability.
 
+Heavily inspired by [collectd](https://github.com/collectd/collectd) and
+[riemann-tools](https://github.com/riemann/riemann-tools)
+
 
 [![Build Status](https://travis-ci.org/CodersOfTheNight/oshino.svg?branch=master)](https://travis-ci.org/CodersOfTheNight/oshino)
 
