@@ -53,11 +53,11 @@ class HttpAgent(Agent):
         te = time()
         span = te - ts
         logger.debug("Request to {url} returned status code {code} (as {state}) "
-                     "in {span} milliseconds.".format(url=url,
+                     "in {span} milliseconds.".format(url=self.url,
                                                       code=resp.status,
                                                       state=state,
                                                       span=span))
 
         event_fn(metric_f=span,
                  state=state,
-                 description=url)
+                 description=self.url)
