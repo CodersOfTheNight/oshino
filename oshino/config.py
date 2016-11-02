@@ -61,6 +61,10 @@ class AgentConfig(ConfigBase):
             self._instance = dynamic_import(self.module)(self._data)
         return self._instance
 
+    @property
+    def tag(self):
+        return self._data.get("tag", None)
+
     def is_valid(self):
         return self.instance.is_valid()
 
