@@ -3,3 +3,7 @@ interval: 10
 riemann:
   host: localhost
   port: 5555
+agents:
+  - name: health-check
+    module: oshino.agents.http_agent.HttpAgent
+    url: http://python.org
