@@ -29,7 +29,7 @@ class ConsulAgent(Agent):
 
     async def get_json(self, url):
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.url) as resp:
+            async with session.get(url) as resp:
                 return await resp.json()
 
     @property
