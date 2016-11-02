@@ -5,6 +5,7 @@ import sys
 from logbook import Logger, StreamHandler
 from riemann_client.transport import TCPTransport
 from riemann_client.client import QueuedClient
+from functools import partial
 
 from ..config import Config
 from ..version import get_version
@@ -25,10 +26,13 @@ async def main_loop(cfg: Config, logger: Logger):
     riemann = cfg.riemann
     transport = TCPTransport(riemann.host, riemann.port)
     client = QueuedClient(transport)
-    agents = list(map(lambda x: x.instance, cfg.agents))
+    agents = list(map(lambda x: (x.instance, x), cfg.agents))
     while True:
         send_heartbeat(client, logger)
-        for agent in agents:
+        for agent, agent_cfg in agents:
+            event_fn = partial(client.event,
+                               service=agent_cfg.name,
+                               tags=[agent_cfg.tag])
             await agent.process(client, logger)
         await asyncio.sleep(cfg.interval)
         flush_riemann(client, transport, logger)
