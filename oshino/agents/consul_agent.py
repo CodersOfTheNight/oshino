@@ -37,6 +37,10 @@ class ConsulAgent(Agent):
         return await self.get_json(self.services_url)
 
     @property
+    async def nodes(self):
+        return await self.get_json(self.nodes_url)
+
+    @property
     def host(self):
         return self._data.get("host", "localhost")
 
@@ -47,3 +51,6 @@ class ConsulAgent(Agent):
     async def process(self, event_fn, logger):
         services = await self.services
         logger.debug("Got services: {0}".format(services))
+
+        nodes = await self.nodes
+        logger.debug("Got nodes: {0}".format(nodes))
