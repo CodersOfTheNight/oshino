@@ -5,6 +5,10 @@ Oshino - named after character Meme Oshino from anime called Bakemonogatari:
 
 Just like anime character, this service likes to deal with supernatural - system availability.
 
+Requirements
+============
+Python 3.5+ version
+
 How to install
 ==============
 `pip install oshino`
