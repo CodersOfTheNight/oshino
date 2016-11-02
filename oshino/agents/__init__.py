@@ -1,3 +1,6 @@
+from logbook import Logger
+
+
 class Agent(object):
 
     def __init__(self, cfg):
@@ -7,7 +10,10 @@ class Agent(object):
     def prefix(self):
         return "{0}.".format(self._data["name"])
 
-    async def process(self, event_fn, logger):
+    def get_logger(self):
+        return Logger(self.__class__.__name__)
+
+    async def process(self, event_fn):
         pass
 
     def is_valid(self):

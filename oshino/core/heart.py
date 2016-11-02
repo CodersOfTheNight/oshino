@@ -33,7 +33,7 @@ async def main_loop(cfg: Config, logger: Logger):
             tags = [agent_cfg.tag] if agent_cfg.tag else None
             event_fn = partial(client.event,
                                tags=tags)
-            await agent.process(event_fn, logger)
+            await agent.process(event_fn)
         await asyncio.sleep(cfg.interval)
         flush_riemann(client, transport, logger)
 

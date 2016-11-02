@@ -58,7 +58,8 @@ class ConsulAgent(Agent):
     def port(self):
         return int(self._data.get("port", 8500))
 
-    async def process(self, event_fn, logger):
+    async def process(self, event_fn):
+        logger = self.get_logger()
         services = await self.services
         logger.debug("Got services: {0}".format(services))
 

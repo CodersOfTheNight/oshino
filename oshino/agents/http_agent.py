@@ -44,7 +44,8 @@ class HttpAgent(Agent):
         else:
             return Failure(code)
 
-    async def process(self, event_fn, logger):
+    async def process(self, event_fn):
+        logger = self.get_logger()
         ts = time()
         state = None
         async with aiohttp.ClientSession() as session:
