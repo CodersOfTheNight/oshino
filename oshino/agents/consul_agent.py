@@ -72,4 +72,4 @@ class ConsulAgent(Agent):
                 logger.debug("Node is Ok? {0}".format(ok))
                 event_fn(metric_f=1.0 if ok else 0.0,
                          service=self.prefix + service_name,
-                         host=node["Node"])
+                         host=node["Node"]["Node"])
