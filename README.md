@@ -9,4 +9,22 @@ Just like anime character, this service likes to deal with supernatural - system
 
 How to install
 ==============
-`pip install oshino
+`pip install oshino`
+
+Example config
+==============
+```yaml
+---
+interval: 10
+riemann:
+  host: localhost
+  port: 5555
+agents:
+  - name: health-check
+    module: oshino.agents.http_agent.HttpAgent
+    url: http://python.org
+    tag: healthcheck
+  - name: consul
+    module: oshino.agents.consul_agent.ConsulAgent
+    tag: discovery
+```
