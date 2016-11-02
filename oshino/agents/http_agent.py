@@ -51,7 +51,7 @@ class HttpAgent(Agent):
             async with session.get(self.url) as resp:
                 state = self.translate_status(resp.status)
         te = time()
-        span = te - ts
+        span = int((te - ts) * 1000)
         logger.debug("Request to {url} returned status code {code} (as {state}) "
                      "in {span} milliseconds.".format(url=self.url,
                                                       code=resp.status,
