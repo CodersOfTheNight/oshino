@@ -10,6 +10,7 @@ Heavily inspired by [collectd](https://github.com/collectd/collectd) and
 
 
 [![Build Status](https://travis-ci.org/CodersOfTheNight/oshino.svg?branch=master)](https://travis-ci.org/CodersOfTheNight/oshino)
+[![Coverage Status](https://coveralls.io/repos/github/CodersOfTheNight/oshino/badge.svg?branch=master)](https://coveralls.io/github/CodersOfTheNight/oshino?branch=master)
 
 Requirements
 ============
