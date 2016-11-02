@@ -16,8 +16,8 @@ Alerting and Monitoring based on [Riemann](https://riemann.io)
 
 Requirements
 ============
-Python 3.5+ version
-Have Riemann node running
+- Python 3.5+ version
+- Have Riemann node running
 
 How to install
 ==============
