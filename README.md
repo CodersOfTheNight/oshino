@@ -8,6 +8,8 @@ Just like anime character, this service likes to deal with supernatural - system
 Heavily inspired by [collectd](https://github.com/collectd/collectd) and
 [riemann-tools](https://github.com/riemann/riemann-tools)
 
+Alerting and Monitoring based on [Riemann](https://riemann.io)
+
 
 [![Build Status](https://travis-ci.org/CodersOfTheNight/oshino.svg?branch=master)](https://travis-ci.org/CodersOfTheNight/oshino)
 [![Coverage Status](https://coveralls.io/repos/github/CodersOfTheNight/oshino/badge.svg?branch=master)](https://coveralls.io/github/CodersOfTheNight/oshino?branch=master)
@@ -15,6 +17,7 @@ Heavily inspired by [collectd](https://github.com/collectd/collectd) and
 Requirements
 ============
 Python 3.5+ version
+Have Riemann node running
 
 How to install
 ==============
