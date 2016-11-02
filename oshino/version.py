@@ -3,7 +3,7 @@ Module just to print out current version.
 That's all.
 """
 
-VERSION = (0, 0, 6)
+VERSION = (0, 0, 7)
 
 
 def get_version():
