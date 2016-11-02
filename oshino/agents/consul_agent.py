@@ -1,3 +1,4 @@
+import aiohttp
 from . import Agent
 
 
@@ -26,6 +27,15 @@ class ConsulAgent(Agent):
                 .format(host=self.host,
                         port=self.port))
 
+    async def get_json(self, url):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.url) as resp:
+                return await resp.json()
+
+    @property
+    async def services(self):
+        return await self.get_json(self.services_url)
+
     @property
     def host(self):
         return self._data.get("host", "localhost")
@@ -33,3 +43,7 @@ class ConsulAgent(Agent):
     @property
     def port(self):
         return int(self._data.get("port", 8500))
+
+    async def process(self, event_fn, logger):
+        services = await self.services
+        logger.debug("Got services: {0}".format(services))
