@@ -5,3 +5,6 @@ class Agent(object):
 
     async def process(self, event_fn, logger):
         pass
+
+    def is_valid(self):
+        return True
