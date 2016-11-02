@@ -28,7 +28,7 @@ async def main_loop(cfg: Config, logger: Logger):
     client = QueuedClient(transport)
     agents = list(map(lambda x: (x.instance, x), cfg.agents))
     while True:
-        send_heartbeat(client.event, logger)
+        send_heartbeat(client.event, logger, cfg.interval)
         for agent, agent_cfg in agents:
             tags = [agent_cfg.tag] if agent_cfg.tag else None
             event_fn = partial(client.event,
