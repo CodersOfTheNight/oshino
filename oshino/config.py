@@ -1,5 +1,6 @@
 import os
 import yaml
+import logbook
 
 from jinja2 import Template
 from .util import dynamic_import
@@ -90,6 +91,11 @@ class Config(ConfigBase):
     @property
     def interval(self):
         return self._data["interval"]
+
+    @property
+    def log_level(self):
+        raw = self._data.get("loglevel", "INFO").upper()
+        return getattr(logbook, raw)
 
     @property
     def agents(self):

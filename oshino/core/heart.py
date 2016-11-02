@@ -39,7 +39,7 @@ async def main_loop(cfg: Config, logger: Logger):
 
 
 def start_loop(cfg: Config):
-    StreamHandler(sys.stdout).push_application()
+    StreamHandler(sys.stdout, level=cfg.log_level).push_application()
     logger = Logger("Heart")
     logger.info("Initializing Oshino v{0}".format(get_version()))
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
