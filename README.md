@@ -5,6 +5,9 @@ Oshino - named after character Meme Oshino from anime called Bakemonogatari:
 
 Just like anime character, this service likes to deal with supernatural - system availability.
 
+
+[![Build Status](https://travis-ci.org/CodersOfTheNight/oshino.svg?branch=master)](https://travis-ci.org/CodersOfTheNight/oshino)
+
 Requirements
 ============
 Python 3.5+ version
