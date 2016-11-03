@@ -36,7 +36,17 @@ agents:
     module: oshino.agents.http_agent.HttpAgent
     url: http://python.org
     tag: healthcheck
-  - name: consul
-    module: oshino.agents.consul_agent.ConsulAgent
-    tag: discovery
 ```
+
+Third party Agents
+==================
+Oshino agents can be added frome external sources.
+You just need to install agent and set proper module config for it
+
+Known agents:
+- [oshino-consul](https://github.com/CodersOfTheNight/oshino-consul)
+
+Creating custom Agent
+---------------------
+It can be done by using our [Cookiecutter Template](https://github.com/CodersOfTheNight/oshino-cookiecutter)
+
