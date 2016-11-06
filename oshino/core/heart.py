@@ -40,7 +40,7 @@ async def main_loop(cfg: Config, logger: Logger):
         td = te - ts
         # Instrumentation
         send_heartbeat(client.event, logger, int(cfg.interval * 1.5))
-        send_timedelta(client.event, logger, td)
+        send_timedelta(client.event, logger, td, cfg.interval)
         send_metrics_count(client.event, logger, len(client.queue.events))
 
         flush_riemann(client, transport, logger)

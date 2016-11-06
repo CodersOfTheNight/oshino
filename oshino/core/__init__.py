@@ -6,9 +6,15 @@ def send_heartbeat(event_fn, logger, ttl):
              ttl=ttl)
 
 
-def send_timedelta(event_fn, logger, td):
+def send_timedelta(event_fn, logger, td, interval):
     logger.debug("Oshino took: {0}ms to collect metrics".format(int(td * 1000)))
+    if td > interval:
+        state = "error"
+    else:
+        state = "ok"
+
     event_fn(metric_f=td,
+             state=state,
              service="oshino.processing_time",
              tags=["oshino", "instrumentation"])
 
