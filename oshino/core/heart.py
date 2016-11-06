@@ -1,6 +1,7 @@
 import asyncio
 import signal
 import sys
+from time import time
 
 from logbook import Logger, StreamHandler
 from riemann_client.transport import TCPTransport
@@ -28,14 +29,18 @@ async def main_loop(cfg: Config, logger: Logger):
     client = QueuedClient(transport)
     agents = list(map(lambda x: (x.instance, x), cfg.agents))
     while True:
+        ts = time()
         send_heartbeat(client.event, logger, int(cfg.interval * 1.5))
         for agent, agent_cfg in agents:
             tags = [agent_cfg.tag] if agent_cfg.tag else None
             event_fn = partial(client.event,
                                tags=tags)
             await agent.process(event_fn)
-        await asyncio.sleep(cfg.interval)
+
+        te = time()
+        td = int(te - ts)
         flush_riemann(client, transport, logger)
+        await asyncio.sleep(cfg.interval - td)
 
 
 def start_loop(cfg: Config):
