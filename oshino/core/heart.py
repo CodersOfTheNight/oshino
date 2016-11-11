@@ -30,7 +30,7 @@ async def main_loop(cfg: Config, logger: Logger):
     agents = list(map(lambda x: (x.instance, x), cfg.agents))
 
     for agent in agents:
-        agent.on_star()
+        agent.on_start()
 
     while True:
         ts = time()
