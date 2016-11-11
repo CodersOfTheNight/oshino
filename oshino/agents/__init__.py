@@ -6,6 +6,12 @@ class Agent(object):
     def __init__(self, cfg):
         self._data = cfg
 
+    def on_start(self):
+        pass
+
+    def on_stop(self):
+        pass
+
     @property
     def name(self):
         return self._data["name"].lower().replace(" ", "-")

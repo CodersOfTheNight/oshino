@@ -28,6 +28,10 @@ async def main_loop(cfg: Config, logger: Logger):
     transport = TCPTransport(riemann.host, riemann.port)
     client = QueuedClient(transport)
     agents = list(map(lambda x: (x.instance, x), cfg.agents))
+
+    for agent in agents:
+        agent.on_star()
+
     while True:
         ts = time()
         for agent, agent_cfg in agents:
