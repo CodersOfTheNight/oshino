@@ -29,7 +29,7 @@ async def main_loop(cfg: Config, logger: Logger):
     client = QueuedClient(transport)
     agents = list(map(lambda x: (x.instance, x), cfg.agents))
 
-    for agent in agents:
+    for agent, cfg in agents:
         agent.on_start()
 
     while True:
