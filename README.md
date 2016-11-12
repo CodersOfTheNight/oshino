@@ -35,8 +35,16 @@ How to install
 ==============
 `pip install oshino`
 
+Config
+======
+- `interval` - how often to send metrics (in seconds)
+- `riemann.host` - riemann hostname (default: localhost)
+- `riemann.port` - riemann port (default: 5555)
+- `loglevel` - level of logging (default: INFO)
+- `sentry-dsn` - sentry address for error reporting (default: `None`)
+
 Example config
-==============
+--------------
 ```yaml
 ---
 interval: 10
@@ -58,6 +66,7 @@ You just need to install agent and set proper module config for it
 Known agents:
 - [oshino-consul](https://github.com/CodersOfTheNight/oshino-consul)
 - [oshino-redis](https://github.com/CodersOfTheNight/oshino-redis)
+- [oshino-statsd](https://github.com/CodersOfTheNight/oshino-statsd)
 
 Creating custom Agent
 ---------------------
