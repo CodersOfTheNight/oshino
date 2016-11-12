@@ -16,3 +16,5 @@ PyYAML==3.12
 riemann-client==6.3.0
 six==1.10.0
 requests
+# Error handling
+raven

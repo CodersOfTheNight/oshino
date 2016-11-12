@@ -101,6 +101,10 @@ class Config(ConfigBase):
     def agents(self):
         return [AgentConfig(a) for a in self._data.get("agents", [])]
 
+    @property
+    def sentry_dsn(self):
+        return self._data.get("sentry-dsn", None)
+
 
 def load(config_file):
     """

@@ -1,12 +1,16 @@
 import asyncio
 import signal
 import sys
+import logbook
 from time import time
 
 from logbook import Logger, StreamHandler
 from riemann_client.transport import TCPTransport
 from riemann_client.client import QueuedClient
 from functools import partial
+from raven.handlers.logbook import SentryHandler
+from raven import Client as SentryClient
+from logbook import NestedSetup
 
 from ..config import Config
 from ..version import get_version
@@ -63,11 +67,21 @@ async def main_loop(cfg: Config, logger: Logger):
 
 
 def start_loop(cfg: Config):
-    StreamHandler(sys.stdout, level=cfg.log_level).push_application()
+    handlers = []
+    handlers.append(StreamHandler(sys.stdout, level=cfg.log_level))
     logger = Logger("Heart")
     logger.info("Initializing Oshino v{0}".format(get_version()))
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
                 .format(cfg.interval))
+    if cfg.sentry_dsn:
+        client = SentryClient(cfg.sentry_dsn)
+        handlers.append(SentryHandler(client,
+                                      level=logbook.ERROR,
+                                      bubble=True))
+
+    setup = NestedSetup(handlers)
+    setup.push_application()
+
     try:
         loop.run_until_complete(main_loop(cfg, logger))
     finally:
