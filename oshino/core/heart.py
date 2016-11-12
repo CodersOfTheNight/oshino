@@ -29,16 +29,26 @@ async def main_loop(cfg: Config, logger: Logger):
     client = QueuedClient(transport)
     agents = list(map(lambda x: (x.instance, x), cfg.agents))
 
-    for agent, cfg in agents:
+    for agent, _ in agents:
         agent.on_start()
 
     while True:
         ts = time()
         for agent, agent_cfg in agents:
-            tags = [agent_cfg.tag] if agent_cfg.tag else None
-            event_fn = partial(client.event,
-                               tags=tags,
-                               time=int(time()))
+            tags = [agent_cfg.tag] if agent_cfg.tag else []
+
+            def event_fn(**kwargs):
+                if "tags" in kwargs:
+                    for tag in tags:
+                        kwargs["tags"].append(tag)
+                else:
+                    kwargs["tags"] = tags
+
+                if "time" not in kwargs:
+                    kwargs["time"] = int(time())
+
+                client.event(**kwargs)
+
             await agent.process(event_fn)
 
         te = time()
