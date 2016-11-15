@@ -29,10 +29,6 @@ def test_version():
                                               version.VERSION))
 
 
-def test_version_stdout(capsys):
-    pass
-
-
 class TestBase(object):
 
     def test_base_config_interval(self, base_config):
