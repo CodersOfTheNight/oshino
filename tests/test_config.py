@@ -2,6 +2,7 @@ from pytest import fixture
 
 from oshino.config import Config, RiemannConfig
 from oshino.agents.test_agent import StubAgent
+from oshino import version
 
 
 @fixture
@@ -20,6 +21,16 @@ def base_config():
 @fixture
 def incomplete_config():
     return Config({})
+
+
+def test_version():
+    app_version = version.get_version()
+    assert app_version.split(".") == list(map(lambda x: str(x),
+                                              version.VERSION))
+
+
+def test_version_stdout(capsys):
+    pass
 
 
 class TestBase(object):
