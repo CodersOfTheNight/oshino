@@ -18,7 +18,7 @@ class SubprocessAgent(Agent):
         proc = await asyncio.create_subprocess_shell(self.script)
         exitcode = await proc.wait()
         state = "ok" if exitcode == 0 else "failure"
-        event_fn(service=self.prefix,
+        event_fn(service=self.prefix + "shell",
                  state=state,
                  metric_f=1.0,
                  description="Exit code: {0}".format(exitcode)
