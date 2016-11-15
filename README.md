@@ -26,6 +26,10 @@ By Oshino Http Agent
 --------------------
 - `<agent_name>.health` - returns result of http call. HTTP status maps into state: success codes into `success`, failure - `failure`. Metric - how long it took in miliseconds.
 
+By Oshino Subprocess Agent
+-------------------------
+- `<agent_name>.shell` - returns result of defined shell command. `0` - is counted as sucess, all other codes marks failure and are added to `description` field
+
 Requirements
 ============
 - Python 3.5+ version
@@ -42,6 +46,19 @@ Config
 - `riemann.port` - riemann port (default: 5555)
 - `loglevel` - level of logging (default: INFO)
 - `sentry-dsn` - sentry address for error reporting (default: `None`)
+
+General Config for Agents
+------------------------
+- `tag` - adds this tag to all metrics related to this agent
+
+Http Agent Config
+----------------
+- `url` - which url to call
+
+
+Subprocess Agent Config
+-----------------------
+- `script` - what shell script to execute
 
 Example config
 --------------
