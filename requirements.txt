@@ -18,6 +18,3 @@ six==1.10.0
 requests
 # Error handling
 raven
-# Testing
-stubilous
-pytest-asyncio
