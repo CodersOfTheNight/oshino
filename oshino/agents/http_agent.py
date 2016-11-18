@@ -24,7 +24,7 @@ class HttpAgent(Agent):
     def is_valid(self):
         checks = [("url" in self._data)
                   ]
-        return all(checks)
+        return super(HttpAgent, self).is_valid() and all(checks)
 
     @property
     def url(self):

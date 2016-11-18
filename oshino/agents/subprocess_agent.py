@@ -11,7 +11,7 @@ class SubprocessAgent(Agent):
         return self._data["script"]
 
     def is_valid(self):
-        return "script" in self._data
+        return super(HttpAgent, self).is_valid() and "script" in self._data
 
     async def process(self, event_fn):
         logger = self.get_logger()
