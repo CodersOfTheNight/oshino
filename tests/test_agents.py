@@ -5,7 +5,8 @@ from oshino.agents.http_agent import HttpAgent, Success, Failure
 
 @fixture
 def http_agent():
-    cfg = {"url": "http://localhost:9998/health",
+    cfg = {"name": "test-http-agent",
+           "url": "http://localhost:9998/health",
            "headers": [{"x-test-header": 42}],
            "cookies": [{"user": "mr.awesome"}]}
     return HttpAgent(cfg)
@@ -73,7 +74,7 @@ class TestHttpAgent(object):
         assert isinstance(result, Success)
 
     @mark.asyncio
-    async def test_process_ok(self, http_agent):
+    async def test_process_reachable(self, http_agent):
         reached = False
 
         def stub_event_fn(*args, **kwargs):
@@ -82,3 +83,27 @@ class TestHttpAgent(object):
 
         await http_agent.process(stub_event_fn)
         assert reached
+
+    @mark.asyncio
+    async def test_process_ok(self, http_agent):
+        state = None
+
+        def stub_event_fn(*args, **kwargs):
+            nonlocal state
+            state = kwargs["state"]
+
+        await http_agent.process(stub_event_fn)
+        assert state == "success"
+
+    @mark.asyncio
+    async def test_process_fail(self, http_agent):
+        state = None
+
+        def stub_event_fn(*args, **kwargs):
+            nonlocal state
+            state = kwargs["state"]
+
+        http_agent._data["url"] = "http://localhost:9998/invalid_url"
+
+        await http_agent.process(stub_event_fn)
+        assert state == "failure"
