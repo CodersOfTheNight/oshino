@@ -2,6 +2,7 @@ import asyncio
 from pytest import fixture, mark
 from oshino.agents.http_agent import HttpAgent, Success, Failure
 from oshino.agents.subprocess_agent import SubprocessAgent
+from oshino.agents.test_agent import StubAgent
 
 
 @fixture
@@ -18,6 +19,12 @@ def subprocess_agent():
     cfg = {"name": "test-subprocess-agent",
            "script": "echo 'Hello world!'"}
     return SubprocessAgent(cfg)
+
+
+@fixture
+def stub_agent():
+    cfg = {"name": "stub-agent"}
+    return StubAgent(cfg)
 
 
 @fixture(scope="session", autouse=True)
@@ -38,6 +45,12 @@ def stub_server(request):
     request.addfinalizer(on_close)
     proc.start()
     return proc
+
+
+class TestGenericAgent(object):
+
+    def test_prefix(self, stub_agent):
+        assert stub_agent.prefix == "stub-agent."
 
 
 class TestHttpAgent(object):
