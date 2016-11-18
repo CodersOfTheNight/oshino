@@ -1,6 +1,7 @@
 import asyncio
 from pytest import fixture, mark
 from oshino.agents.http_agent import HttpAgent, Success, Failure
+from oshino.agents.subprocess_agent import SubprocessAgent
 
 
 @fixture
@@ -13,9 +14,10 @@ def http_agent():
 
 
 @fixture
-def incorrect_http_agent():
-    cfg = {}
-    return HttpAgent(cfg)
+def subprocess_agent():
+    cfg = {"name": "test-subprocess-agent",
+           "script": "echo 'Hello world!'"}
+    return SubprocessAgent(cfg)
 
 
 @fixture(scope="session", autouse=True)
@@ -40,8 +42,10 @@ def stub_server(request):
 
 class TestHttpAgent(object):
 
-    def test_agent_without_url(self, incorrect_http_agent):
-        assert not incorrect_http_agent.is_valid()
+    def test_agent_without_url(self):
+        cfg = {}
+        incorrect_agent = HttpAgent(cfg)
+        assert not incorrect_agent.is_valid()
 
     def test_agent_with_url(self, http_agent):
         assert http_agent.is_valid()
@@ -106,4 +110,38 @@ class TestHttpAgent(object):
         http_agent._data["url"] = "http://localhost:9998/invalid_url"
 
         await http_agent.process(stub_event_fn)
+        assert state == "failure"
+
+
+class TestSubprocessAgent(object):
+
+    def test_agent_without_script(self):
+        cfg = {}
+        incorrect_agent = SubprocessAgent(cfg)
+        assert not incorrect_agent.is_valid()
+
+    def test_agent_with_script(self, subprocess_agent):
+        assert subprocess_agent.is_valid()
+
+    @mark.asyncio
+    async def test_process_ok(self, subprocess_agent):
+        state = None
+
+        def stub_event_fn(*args, **kwargs):
+            nonlocal state
+            state = kwargs["state"]
+
+        await subprocess_agent.process(stub_event_fn)
+        assert state == "ok"
+
+    @mark.asyncio
+    async def test_process_fail(self, subprocess_agent):
+        state = None
+        subprocess_agent._data["script"] = "some_random_command"
+
+        def stub_event_fn(*args, **kwargs):
+            nonlocal state
+            state = kwargs["state"]
+
+        await subprocess_agent.process(stub_event_fn)
         assert state == "failure"
