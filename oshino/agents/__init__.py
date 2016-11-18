@@ -27,4 +27,4 @@ class Agent(object):
         pass
 
     def is_valid(self):
-        return True
+        return "name" in self._data
