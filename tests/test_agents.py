@@ -23,7 +23,7 @@ def subprocess_agent():
 
 @fixture
 def generic_agent():
-    cfg = {"name": "generic-agent"}
+    cfg = {"name": "Generic Agent"}
     return Agent(cfg)
 
 
@@ -49,8 +49,24 @@ def stub_server(request):
 
 class TestGenericAgent(object):
 
+    def test_is_valid(self, generic_agent):
+        assert generic_agent.is_valid()
+
+    def test_name(self, generic_agent):
+        assert generic_agent._data["name"] == "Generic Agent"
+        assert generic_agent.name == "generic-agent"
+
     def test_prefix(self, generic_agent):
         assert generic_agent.prefix == "generic-agent."
+
+    def test_logger(self, generic_agent):
+        logger = generic_agent.get_logger()
+        assert logger.name == "Agent"
+
+    def test_start_stop(self, generic_agent):
+        # Just touching at the moment
+        generic_agent.on_start()
+        generic_agent.on_stop()
 
 
 class TestHttpAgent(object):
