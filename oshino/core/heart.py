@@ -27,40 +27,62 @@ def flush_riemann(client, transport, logger):
     except ConnectionRefusedError as ce:
         logger.warn(ce)
 
+
+def create_agents(agents_cfg: list):
+    return list(map(lambda x: (x.instance, x), cfg.agents))
+
+
+def init(agents: list):
+    for agent, _ in agents:
+        agent.on_start()
+
+async def step(agents: list):
+
+    for agent, agent_cfg in agents:
+        tags = [agent_cfg.tag] if agent_cfg.tag else []
+
+        def event_fn(**kwargs):
+            if "tags" in kwargs:
+                for tag in tags:
+                    kwargs["tags"].append(tag)
+            else:
+                kwargs["tags"] = tags
+
+            if "time" not in kwargs:
+                kwargs["time"] = int(time())
+
+            client.event(**kwargs)
+
+        await agent.process(event_fn)
+
+
+def instrumentation(client: QueuedClient,
+                    logger: Logger,
+                    interval: int,
+                    delta: int,
+                    events_count: int):
+    send_heartbeat(client.event, logger, int(interval * 1.5))
+    send_timedelta(client.event, logger, delta, interval)
+    send_metrics_count(client.event, logger, events_count)
+
 async def main_loop(cfg: Config, logger: Logger):
     riemann = cfg.riemann
     transport = TCPTransport(riemann.host, riemann.port)
     client = QueuedClient(transport)
-    agents = list(map(lambda x: (x.instance, x), cfg.agents))
+    agents = create_agents(cfg.agents)
 
-    for agent, _ in agents:
-        agent.on_start()
+    init(agents)
 
     while True:
         ts = time()
-        for agent, agent_cfg in agents:
-            tags = [agent_cfg.tag] if agent_cfg.tag else []
-
-            def event_fn(**kwargs):
-                if "tags" in kwargs:
-                    for tag in tags:
-                        kwargs["tags"].append(tag)
-                else:
-                    kwargs["tags"] = tags
-
-                if "time" not in kwargs:
-                    kwargs["time"] = int(time())
-
-                client.event(**kwargs)
-
-            await agent.process(event_fn)
-
+        await step(agents)
         te = time()
         td = te - ts
-        # Instrumentation
-        send_heartbeat(client.event, logger, int(cfg.interval * 1.5))
-        send_timedelta(client.event, logger, td, cfg.interval)
-        send_metrics_count(client.event, logger, len(client.queue.events))
+        instrumentation(client,
+                        logger,
+                        cfg.interval,
+                        td,
+                        len(client.queue.events))
 
         flush_riemann(client, transport, logger)
         await asyncio.sleep(cfg.interval - int(td))
