@@ -53,7 +53,7 @@ class HttpAgent(Agent):
                 state = self.translate_status(resp.status)
         te = time()
         span = int((te - ts) * 1000)
-        logger.debug("Request to {url} returned status code {code} (as {state}) "
+        logger.debug("Request to {url} returned status code {code}(as {state})"
                      "in {span} milliseconds.".format(url=self.url,
                                                       code=resp.status,
                                                       state=state,
