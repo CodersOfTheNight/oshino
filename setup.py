@@ -19,7 +19,7 @@ setup(name="oshino",
       packages=["oshino", "oshino.core", "oshino.agents"],
       install_requires=[str(ir.req) for ir in install_reqs],
       test_suite="pytest",
-      tests_require=["pytest", "pytest-cov", "pytest-asyncio", "stubilous"],
+      tests_require=["pytest", "pytest-cov", "pytest-asyncio", "stubilous", "flask"],
       setup_requires=["pytest-runner"],
       entry_points={'console_scripts': ['oshino = oshino.run:main'
                                         ]
