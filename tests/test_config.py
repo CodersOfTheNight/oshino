@@ -1,3 +1,5 @@
+import mock
+
 from pytest import fixture
 
 from oshino.config import Config, RiemannConfig
@@ -23,10 +25,15 @@ def incomplete_config():
     return Config({})
 
 
-def test_version():
+def test_version_formatting():
     app_version = version.get_version()
     assert app_version.split(".") == list(map(lambda x: str(x),
                                               version.VERSION))
+
+
+@mock.patch("oshino.version.VERSION", (1, 2, 3))
+def test_version_number():
+    assert version.get_version() == "1.2.3"
 
 
 class TestBase(object):
