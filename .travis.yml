@@ -5,7 +5,8 @@ before_install:
   - pip install coveralls
 
 script:
-  - coverage run --source=oshino setup.py test
+  - flake8 oshino
+  - python setup.py test
 
 after_success:
   - coveralls
