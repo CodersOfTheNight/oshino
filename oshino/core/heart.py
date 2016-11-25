@@ -1,5 +1,4 @@
 import asyncio
-import signal
 import sys
 import logbook
 from time import time
@@ -7,7 +6,6 @@ from time import time
 from logbook import Logger, StreamHandler
 from riemann_client.transport import TCPTransport
 from riemann_client.client import QueuedClient
-from functools import partial
 from raven.handlers.logbook import SentryHandler
 from raven import Client as SentryClient
 from logbook import NestedSetup
@@ -29,14 +27,15 @@ def flush_riemann(client, transport, logger):
 
 
 def create_agents(agents_cfg: list):
-    return list(map(lambda x: (x.instance, x), cfg.agents))
+    return list(map(lambda x: (x.instance, x), agents_cfg.agents))
 
 
 def init(agents: list):
     for agent, _ in agents:
         agent.on_start()
 
-async def step(agents: list):
+
+async def step(client: object, agents: list):
 
     for agent, agent_cfg in agents:
         tags = [agent_cfg.tag] if agent_cfg.tag else []
@@ -65,6 +64,7 @@ def instrumentation(client: QueuedClient,
     send_timedelta(client.event, logger, delta, interval)
     send_metrics_count(client.event, logger, events_count)
 
+
 async def main_loop(cfg: Config, logger: Logger):
     riemann = cfg.riemann
     transport = TCPTransport(riemann.host, riemann.port)
@@ -75,7 +75,7 @@ async def main_loop(cfg: Config, logger: Logger):
 
     while True:
         ts = time()
-        await step(agents)
+        await step(client, agents)
         te = time()
         td = te - ts
         instrumentation(client,
