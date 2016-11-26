@@ -3,6 +3,8 @@ import logbook
 
 from pytest import fixture
 
+from riemann_client.transport import TCPTransport
+
 from oshino.config import Config, RiemannConfig, load
 from oshino.agents.test_agent import StubAgent
 from oshino import version
@@ -55,6 +57,9 @@ class TestBase(object):
     def test_loading_config(self):
         cfg = load("tests/data/test_config.yml")
         assert isinstance(cfg, Config)
+
+    def test_transport_class(self, base_config):
+        assert base_config.riemann_transport == TCPTransport
 
 
 class TestRiemann(object):

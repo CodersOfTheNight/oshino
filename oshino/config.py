@@ -1,6 +1,7 @@
 import os
 import yaml
 import logbook
+import riemann_client.transport
 
 from jinja2 import Template
 from .util import dynamic_import
@@ -104,6 +105,11 @@ class Config(ConfigBase):
     @property
     def sentry_dsn(self):
         return self._data.get("sentry-dsn", None)
+
+    @property
+    def riemann_transport(self):
+        raw = self._data.get("transport", "TCPTransport")
+        return getattr(riemann_client.transport, raw)
 
 
 def load(config_file):
