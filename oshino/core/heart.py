@@ -4,6 +4,7 @@ import logbook
 
 from time import time
 from typing import TypeVar, Generic
+from asyncio import BaseEventLoop
 
 from logbook import Logger, StreamHandler
 from riemann_client.transport import TCPTransport, Transport
@@ -16,7 +17,6 @@ from ..config import Config
 from ..version import get_version
 from . import send_heartbeat, send_timedelta, send_metrics_count
 
-loop = asyncio.get_event_loop()
 
 T = TypeVar("T")
 
@@ -39,7 +39,7 @@ def init(agents: list):
         agent.on_start()
 
 
-async def step(client: object, agents: list):
+async def step(client: object, agents: list, loop: BaseEventLoop):
 
     for agent, agent_cfg in agents:
         tags = [agent_cfg.tag] if agent_cfg.tag else []
@@ -71,7 +71,8 @@ def instrumentation(client: QueuedClient,
 
 async def main_loop(cfg: Config,
                     logger: Logger,
-                    transport_cls: Generic[T]):
+                    transport_cls: Generic[T],
+                    loop: BaseEventLoop):
     riemann = cfg.riemann
     transport = transport_cls(riemann.host, riemann.port)
     client = QueuedClient(transport)
@@ -81,7 +82,7 @@ async def main_loop(cfg: Config,
 
     while True:
         ts = time()
-        await step(client, agents)
+        await step(client, agents, loop=loop)
         te = time()
         td = te - ts
         instrumentation(client,
@@ -91,7 +92,7 @@ async def main_loop(cfg: Config,
                         len(client.queue.events))
 
         flush_riemann(client, transport, logger)
-        await asyncio.sleep(cfg.interval - int(td))
+        await asyncio.sleep(cfg.interval - int(td), loop=loop)
 
 
 def start_loop(cfg: Config):
@@ -110,7 +111,11 @@ def start_loop(cfg: Config):
     setup = NestedSetup(handlers)
     setup.push_application()
 
+    loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(main_loop(cfg, logger, cfg.riemann.transport))
+        loop.run_until_complete(main_loop(cfg,
+                                          logger,
+                                          cfg.riemann.transport,
+                                          loop=loop))
     finally:
         loop.close()
