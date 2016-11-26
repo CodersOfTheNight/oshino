@@ -1,10 +1,12 @@
 import mock
+import logbook
 
 from pytest import fixture
 
 from oshino.config import Config, RiemannConfig
 from oshino.agents.test_agent import StubAgent
 from oshino import version
+from oshino import get_version
 
 
 @fixture
@@ -14,7 +16,8 @@ def base_config():
                                },
                    "interval": 5,
                    "agents": [{"name": "test-agent",
-                               "module": "oshino.agents.test_agent.StubAgent"
+                               "module": "oshino.agents.test_agent.StubAgent",
+                               "tag": "test"
                                }
                               ]
                    })
@@ -26,20 +29,23 @@ def incomplete_config():
 
 
 def test_version_formatting():
-    app_version = version.get_version()
+    app_version = get_version()
     assert app_version.split(".") == list(map(lambda x: str(x),
                                               version.VERSION))
 
 
 @mock.patch("oshino.version.VERSION", (1, 2, 3))
 def test_version_number():
-    assert version.get_version() == "1.2.3"
+    assert get_version() == "1.2.3"
 
 
 class TestBase(object):
 
     def test_base_config_interval(self, base_config):
         assert base_config.interval == 5
+
+    def test_default_log_level(self, base_config):
+        assert base_config.log_level == logbook.INFO
 
 
 class TestRiemann(object):
@@ -66,3 +72,7 @@ class TestAgents(object):
         assert len(agents) == 1
         obj = agents[0].instance
         assert isinstance(obj, StubAgent)
+
+    def test_agent_tag(self, base_config):
+        agents = base_config.agents
+        assert agents[0].tag == "test"
