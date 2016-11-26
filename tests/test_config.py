@@ -58,9 +58,6 @@ class TestBase(object):
         cfg = load("tests/data/test_config.yml")
         assert isinstance(cfg, Config)
 
-    def test_transport_class(self, base_config):
-        assert base_config.riemann_transport == TCPTransport
-
 
 class TestRiemann(object):
 
@@ -77,6 +74,9 @@ class TestRiemann(object):
 
     def test_riemann_default_port(self, incomplete_config):
         assert incomplete_config.riemann.port == 5555
+
+    def test_transport_class(self, base_config):
+        assert base_config.riemann.transport == TCPTransport
 
 
 class TestAgents(object):

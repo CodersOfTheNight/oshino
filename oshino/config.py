@@ -38,6 +38,11 @@ class RiemannConfig(ConfigBase):
     def default():
         return RiemannConfig({})
 
+    @property
+    def transport(self):
+        raw = self._data.get("transport", "TCPTransport")
+        return getattr(riemann_client.transport, raw)
+
 
 class AgentConfig(ConfigBase):
 
@@ -105,11 +110,6 @@ class Config(ConfigBase):
     @property
     def sentry_dsn(self):
         return self._data.get("sentry-dsn", None)
-
-    @property
-    def riemann_transport(self):
-        raw = self._data.get("transport", "TCPTransport")
-        return getattr(riemann_client.transport, raw)
 
 
 def load(config_file):
