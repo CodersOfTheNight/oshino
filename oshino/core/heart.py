@@ -71,7 +71,7 @@ def instrumentation(client: QueuedClient,
 
 async def main_loop(cfg: Config,
                     logger: Logger,
-                    transport_cls: Generic[T]=TCPTransport):
+                    transport_cls: Generic[T]):
     riemann = cfg.riemann
     transport = transport_cls(riemann.host, riemann.port)
     client = QueuedClient(transport)
@@ -111,6 +111,6 @@ def start_loop(cfg: Config):
     setup.push_application()
 
     try:
-        loop.run_until_complete(main_loop(cfg, logger))
+        loop.run_until_complete(main_loop(cfg, logger, cfg.riemann.transport))
     finally:
         loop.close()
