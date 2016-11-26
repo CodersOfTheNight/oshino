@@ -7,7 +7,6 @@ from typing import TypeVar, Generic
 from asyncio import BaseEventLoop
 
 from logbook import Logger, StreamHandler
-from riemann_client.transport import TCPTransport, Transport
 from riemann_client.client import QueuedClient
 from raven.handlers.logbook import SentryHandler
 from raven import Client as SentryClient
