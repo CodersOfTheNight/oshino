@@ -9,55 +9,14 @@ from oshino.core.heart import (step,
                                create_agents,
                                init)
 from oshino.agents.test_agent import StubAgent
+from .fixtures import mock_transport, mock_client, broken_transport
 
 logger = logging.getLogger(__name__)
-
-
-class MockClient(object):
-
-    def __init__(self):
-        self.events = []
-
-    def event(self, *args, **kwargs):
-        self.events.append((args, kwargs))
-
-    def flush(self):
-        self.events = []
-
-
-class MockTransport(object):
-
-    def __init__(self, broken=False):
-        self.connected = False
-        self.broken = broken
-
-    def connect(self):
-        if self.broken:
-            raise ConnectionRefusedError
-        self.connected = True
-
-    def disconnect(self):
-        self.connected = False
 
 
 @fixture
 def stub_agent():
     return StubAgent({}), AgentConfig({})
-
-
-@fixture
-def mock_client():
-    return MockClient()
-
-
-@fixture
-def mock_transport():
-    return MockTransport()
-
-
-@fixture
-def broken_transport():
-    return MockTransport(broken=True)
 
 
 @fixture
