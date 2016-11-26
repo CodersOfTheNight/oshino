@@ -44,6 +44,7 @@ Config
 - `interval` - how often to send metrics (in seconds)
 - `riemann.host` - riemann hostname (default: localhost)
 - `riemann.port` - riemann port (default: 5555)
+- `riemann.transport` - set transport protocol for riemann (default: TCPTransport)
 - `loglevel` - level of logging (default: INFO)
 - `sentry-dsn` - sentry address for error reporting (default: `None`)
 
