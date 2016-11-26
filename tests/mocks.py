@@ -1,3 +1,6 @@
+from riemann_client.transport import BlankTransport
+
+
 class MockClient(object):
 
     def __init__(self):
@@ -10,9 +13,9 @@ class MockClient(object):
         self.events = []
 
 
-class MockTransport(object):
+class MockTransport(BlankTransport):
 
-    def __init__(self, broken=False):
+    def __init__(self, host=None, port=None, broken=False):
         self.connected = False
         self.broken = broken
 
