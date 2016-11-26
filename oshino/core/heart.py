@@ -116,7 +116,7 @@ def start_loop(cfg: Config):
     setup = NestedSetup(handlers)
     setup.push_application()
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     try:
         loop.run_until_complete(main_loop(cfg,
                                           logger,
