@@ -1,10 +1,12 @@
 import asyncio
 import sys
 import logbook
+
 from time import time
+from typing import TypeVar, Generic
 
 from logbook import Logger, StreamHandler
-from riemann_client.transport import TCPTransport
+from riemann_client.transport import TCPTransport, Transport
 from riemann_client.client import QueuedClient
 from raven.handlers.logbook import SentryHandler
 from raven import Client as SentryClient
@@ -15,6 +17,8 @@ from ..version import get_version
 from . import send_heartbeat, send_timedelta, send_metrics_count
 
 loop = asyncio.get_event_loop()
+
+T = TypeVar("T")
 
 
 def flush_riemann(client, transport, logger):
@@ -65,9 +69,11 @@ def instrumentation(client: QueuedClient,
     send_metrics_count(client.event, logger, events_count)
 
 
-async def main_loop(cfg: Config, logger: Logger):
+async def main_loop(cfg: Config,
+                    logger: Logger,
+                    transport_cls: Generic[T]=TCPTransport):
     riemann = cfg.riemann
-    transport = TCPTransport(riemann.host, riemann.port)
+    transport = transport_cls(riemann.host, riemann.port)
     client = QueuedClient(transport)
     agents = create_agents(cfg.agents)
 
