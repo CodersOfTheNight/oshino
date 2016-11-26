@@ -7,7 +7,8 @@ from oshino.core.heart import (step,
                                instrumentation,
                                flush_riemann,
                                create_agents,
-                               init)
+                               init,
+                               forever)
 from oshino.agents.test_agent import StubAgent
 from .fixtures import mock_transport, mock_client, broken_transport
 
@@ -105,3 +106,6 @@ class TestHeart(object):
 
     def test_init(self, stub_agent):
         init([stub_agent])
+
+    def test_forever(self):
+        assert all([forever() for i in range(0, 10)])
