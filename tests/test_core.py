@@ -27,10 +27,13 @@ class MockClient(object):
 
 class MockTransport(object):
 
-    def __init__(self):
+    def __init__(self, broken=False):
         self.connected = False
+        self.broken = broken
 
     def connect(self):
+        if self.broken:
+            raise ConnectionRefusedError
         self.connected = True
 
     def disconnect(self):
@@ -50,6 +53,11 @@ def mock_client():
 @fixture
 def mock_transport():
     return MockTransport()
+
+
+@fixture
+def broken_transport():
+    return MockTransport(broken=True)
 
 
 @fixture
@@ -125,6 +133,9 @@ class TestHeart(object):
         flush_riemann(mock_client, mock_transport, logger)
         assert len(mock_client.events) == 0
         assert not mock_transport.connected
+
+    def test_flush_w_error(self, mock_client, broken_transport):
+        flush_riemann(mock_client, broken_transport, logger)
 
     def test_agents_creation(self, base_config):
         result = create_agents(base_config)
