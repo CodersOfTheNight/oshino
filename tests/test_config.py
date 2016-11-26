@@ -3,7 +3,7 @@ import logbook
 
 from pytest import fixture
 
-from oshino.config import Config, RiemannConfig
+from oshino.config import Config, RiemannConfig, load
 from oshino.agents.test_agent import StubAgent
 from oshino import version
 from oshino import get_version
@@ -51,6 +51,10 @@ class TestBase(object):
 
     def test_sentry_dsn(self, base_config):
         assert base_config.sentry_dsn == "http://test:test@sentry.io"
+
+    def test_loading_config(self):
+        cfg = load("tests/data/test_config.yml")
+        assert isinstance(cfg, Config)
 
 
 class TestRiemann(object):
