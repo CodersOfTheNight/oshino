@@ -8,4 +8,5 @@ class StubAgent(Agent):
 
     async def process(self, event_fn):
         event_fn(metric_f=1.0,
-                 service="test")
+                 service="test",
+                 tags=["test"])
