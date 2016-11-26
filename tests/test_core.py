@@ -77,8 +77,8 @@ class TestInstrumentation(object):
 class TestHeart(object):
 
     @mark.asyncio
-    async def test_step(self, stub_agent, mock_client):
-        await step(mock_client, [stub_agent])
+    async def test_step(self, stub_agent, mock_client, event_loop):
+        await step(mock_client, [stub_agent], loop=event_loop)
         assert len(mock_client.events) == 1
 
     def test_instrumentation(self, mock_client):
