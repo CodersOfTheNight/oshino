@@ -13,6 +13,7 @@ Alerting and Monitoring based on [Riemann](https://riemann.io)
 
 
 [![Build Status](https://travis-ci.org/CodersOfTheNight/oshino.svg?branch=master)](https://travis-ci.org/CodersOfTheNight/oshino)
+[![Coverage Status](https://coveralls.io/repos/github/CodersOfTheNight/oshino/badge.svg?branch=master)](https://coveralls.io/github/CodersOfTheNight/oshino?branch=master)
 
 Output Events
 =============
