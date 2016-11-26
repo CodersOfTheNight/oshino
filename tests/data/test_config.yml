@@ -1,9 +1,11 @@
 ---
 interval: 10
+loglevel: DEBUG
 riemann:
   host: localhost
   port: 5555
+  transport: BlankTransport
 agents:
-  - name: health-check
-    module: oshino.agents.http_agent.HttpAgent
-    url: http://python.org
+  - name: echo
+    module: oshino.agents.subprocess_agent.SubprocessAgent
+    script: "echo 'Hello world!'"
