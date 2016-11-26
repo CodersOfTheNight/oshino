@@ -6,3 +6,4 @@ mock
 flake8
 stubilous
 flask
+coveralls
