@@ -4,6 +4,7 @@ python:
 before_install:
   - pip install coveralls
   - pip install flake8
+  - pip install pytest
 
 script:
   - flake8 oshino
