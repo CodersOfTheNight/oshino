@@ -68,6 +68,15 @@ class TestGenericAgent(object):
         generic_agent.on_start()
         generic_agent.on_stop()
 
+    @mark.asyncio
+    async def test_process_reachable(self, generic_agent):
+        # Just touching at the moment
+
+        def stub_event_fn(*args, **kwargs):
+            pass
+
+        await generic_agent.process(stub_event_fn)
+
 
 class TestHttpAgent(object):
 
