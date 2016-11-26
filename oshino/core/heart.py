@@ -21,6 +21,10 @@ from . import send_heartbeat, send_timedelta, send_metrics_count
 T = TypeVar("T")
 
 
+def forever():
+    return True
+
+
 def flush_riemann(client, transport, logger):
     try:
         transport.connect()
@@ -72,6 +76,7 @@ def instrumentation(client: QueuedClient,
 async def main_loop(cfg: Config,
                     logger: Logger,
                     transport_cls: Generic[T],
+                    continue_fn: callable,
                     loop: BaseEventLoop):
     riemann = cfg.riemann
     transport = transport_cls(riemann.host, riemann.port)
@@ -80,7 +85,7 @@ async def main_loop(cfg: Config,
 
     init(agents)
 
-    while True:
+    while continue_fn():
         ts = time()
         await step(client, agents, loop=loop)
         te = time()
@@ -116,6 +121,7 @@ def start_loop(cfg: Config):
         loop.run_until_complete(main_loop(cfg,
                                           logger,
                                           cfg.riemann.transport,
+                                          forever,
                                           loop=loop))
     finally:
         loop.close()
