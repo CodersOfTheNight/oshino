@@ -20,6 +20,10 @@ from . import send_heartbeat, send_timedelta, send_metrics_count
 T = TypeVar("T")
 
 
+def create_loop():
+    return asyncio.get_event_loop()
+
+
 def forever():
     return True
 
@@ -99,6 +103,7 @@ async def main_loop(cfg: Config,
         if continue_fn():
             await asyncio.sleep(cfg.interval - int(td), loop=loop)
         else:
+            logger.info("Stopping Oshino")
             break
 
 
@@ -118,7 +123,7 @@ def start_loop(cfg: Config):
     setup = NestedSetup(handlers)
     setup.push_application()
 
-    loop = asyncio.new_event_loop()
+    loop = create_loop()
     try:
         loop.run_until_complete(main_loop(cfg,
                                           logger,

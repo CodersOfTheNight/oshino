@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 from pytest import mark, fixture
 from oshino.core import send_heartbeat, send_timedelta, send_metrics_count
@@ -8,7 +9,8 @@ from oshino.core.heart import (step,
                                flush_riemann,
                                create_agents,
                                init,
-                               forever)
+                               forever,
+                               create_loop)
 from oshino.agents.test_agent import StubAgent
 from .fixtures import mock_transport, mock_client, broken_transport
 
@@ -109,3 +111,6 @@ class TestHeart(object):
 
     def test_forever(self):
         assert all([forever() for i in range(0, 10)])
+
+    def test_event_loop_creation(self):
+        assert isinstance(create_loop(), asyncio.BaseEventLoop)
