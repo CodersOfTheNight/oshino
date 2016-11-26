@@ -7,7 +7,8 @@ def send_heartbeat(event_fn, logger, ttl):
 
 
 def send_timedelta(event_fn, logger, td, interval):
-    logger.debug("Oshino took: {0}ms to collect metrics".format(int(td * 1000)))
+    logger.debug("Oshino took: {0}ms to collect metrics"
+                 .format(int(td * 1000)))
     if td > interval:
         state = "error"
     else:

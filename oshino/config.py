@@ -1,6 +1,7 @@
 import os
 import yaml
 import logbook
+import riemann_client.transport
 
 from jinja2 import Template
 from .util import dynamic_import
@@ -36,6 +37,11 @@ class RiemannConfig(ConfigBase):
     @staticmethod
     def default():
         return RiemannConfig({})
+
+    @property
+    def transport(self):
+        raw = self._data.get("transport", "TCPTransport")
+        return getattr(riemann_client.transport, raw)
 
 
 class AgentConfig(ConfigBase):

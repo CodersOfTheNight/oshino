@@ -13,6 +13,7 @@ Alerting and Monitoring based on [Riemann](https://riemann.io)
 
 
 [![Build Status](https://travis-ci.org/CodersOfTheNight/oshino.svg?branch=master)](https://travis-ci.org/CodersOfTheNight/oshino)
+[![Coverage Status](https://coveralls.io/repos/github/CodersOfTheNight/oshino/badge.svg?branch=master)](https://coveralls.io/github/CodersOfTheNight/oshino?branch=master)
 
 Output Events
 =============
@@ -44,6 +45,7 @@ Config
 - `interval` - how often to send metrics (in seconds)
 - `riemann.host` - riemann hostname (default: localhost)
 - `riemann.port` - riemann port (default: 5555)
+- `riemann.transport` - set transport protocol for riemann (default: TCPTransport)
 - `loglevel` - level of logging (default: INFO)
 - `sentry-dsn` - sentry address for error reporting (default: `None`)
 

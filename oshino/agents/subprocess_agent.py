@@ -1,7 +1,6 @@
 import asyncio
 
 from . import Agent
-from asyncio.subprocess import PIPE
 
 
 class SubprocessAgent(Agent):
@@ -11,10 +10,10 @@ class SubprocessAgent(Agent):
         return self._data["script"]
 
     def is_valid(self):
-        return "script" in self._data
+        return (super(SubprocessAgent, self).is_valid()
+                and "script" in self._data)
 
     async def process(self, event_fn):
-        logger = self.get_logger()
         proc = await asyncio.create_subprocess_shell(self.script)
         exitcode = await proc.wait()
         state = "ok" if exitcode == 0 else "failure"
