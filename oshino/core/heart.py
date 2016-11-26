@@ -84,7 +84,7 @@ async def main_loop(cfg: Config,
 
     init(agents)
 
-    while continue_fn():
+    while True:
         ts = time()
         await step(client, agents, loop=loop)
         te = time()
@@ -96,7 +96,10 @@ async def main_loop(cfg: Config,
                         len(client.queue.events))
 
         flush_riemann(client, transport, logger)
-        await asyncio.sleep(cfg.interval - int(td), loop=loop)
+        if continue_fn():
+            await asyncio.sleep(cfg.interval - int(td), loop=loop)
+        else:
+            break
 
 
 def start_loop(cfg: Config):
