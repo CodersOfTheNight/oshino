@@ -15,6 +15,7 @@ def base_config():
                                "port": 5555
                                },
                    "interval": 5,
+                   "sentry-dsn": "http://test:test@sentry.io",
                    "agents": [{"name": "test-agent",
                                "module": "oshino.agents.test_agent.StubAgent",
                                "tag": "test"
@@ -28,15 +29,16 @@ def incomplete_config():
     return Config({})
 
 
-def test_version_formatting():
-    app_version = get_version()
-    assert app_version.split(".") == list(map(lambda x: str(x),
-                                              version.VERSION))
+class TestVersion(object):
 
+    def test_version_formatting(self):
+        app_version = get_version()
+        assert app_version.split(".") == list(map(lambda x: str(x),
+                                                  version.VERSION))
 
-@mock.patch("oshino.version.VERSION", (1, 2, 3))
-def test_version_number():
-    assert get_version() == "1.2.3"
+    @mock.patch("oshino.version.VERSION", (1, 2, 3))
+    def test_version_number(self):
+        assert get_version() == "1.2.3"
 
 
 class TestBase(object):
@@ -46,6 +48,9 @@ class TestBase(object):
 
     def test_default_log_level(self, base_config):
         assert base_config.log_level == logbook.INFO
+
+    def test_sentry_dsn(self, base_config):
+        assert base_config.sentry_dsn == "http://test:test@sentry.io"
 
 
 class TestRiemann(object):
