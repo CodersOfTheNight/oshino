@@ -31,7 +31,7 @@ def flush_riemann(client, transport, logger):
 
 
 def create_agents(agents_cfg: list):
-    return list(map(lambda x: (x.instance, x), agents_cfg.agents))
+    return list(map(lambda x: (x.instance, x), agents_cfg))
 
 
 def init(agents: list):

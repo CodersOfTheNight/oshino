@@ -97,7 +97,7 @@ class TestHeart(object):
         flush_riemann(mock_client, broken_transport, logger)
 
     def test_agents_creation(self, base_config):
-        result = create_agents(base_config)
+        result = create_agents(base_config.agents)
         assert len(result) == 1
         agent, cfg = result[0]
         assert isinstance(agent, StubAgent)
