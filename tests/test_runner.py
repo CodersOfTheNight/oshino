@@ -1,8 +1,10 @@
-from pytest import mark
+from pytest import mark, raises
 from oshino.run import main
+from mock import patch
 
 
 @mark.integration
-@mark.skip("It runs forever")
+@patch("oshino.core.heart.forever", lambda: False)
 def test_startup():
-    main(("--config", "tests/data/test_config.yml", ))
+    with raises(SystemExit):
+        main(("--config", "tests/data/test_config.yml", ))
