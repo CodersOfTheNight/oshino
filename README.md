@@ -77,6 +77,18 @@ agents:
     tag: healthcheck
 ```
 
+Suggested Riemann config
+-------------------------
+```clojure
+ (where (tagged-all ["oshino", "heartbeat"])
+       (changed :state
+         (email "something@something.com")
+       )
+    )
+```
+
+If Oshino goes down, or encounters some performance hickups - you'll be notified
+
 Third party Agents
 ==================
 Oshino agents can be added frome external sources.
