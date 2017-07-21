@@ -1,6 +1,5 @@
 aiohttp==1.0.5
 async-timeout==1.1.0
-chardet==2.3.0
 click==6.6
 coverage==4.2
 Jinja2==2.8
@@ -16,5 +15,7 @@ PyYAML==3.12
 riemann-client==6.3.0
 six==1.10.0
 requests
+
+chardet
 # Error handling
 raven
