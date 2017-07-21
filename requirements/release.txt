@@ -8,8 +8,6 @@ MarkupSafe==0.23
 multidict==2.1.2
 protobuf==3.1.0.post1
 py==1.4.31
-pytest==3.0.3
-pytest-cov==2.4.0
 python-dotenv==0.6.0
 PyYAML==3.12
 riemann-client==6.3.0
