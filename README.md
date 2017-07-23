@@ -98,6 +98,7 @@ Known agents:
 - [oshino-consul](https://github.com/CodersOfTheNight/oshino-consul)
 - [oshino-redis](https://github.com/CodersOfTheNight/oshino-redis)
 - [oshino-statsd](https://github.com/CodersOfTheNight/oshino-statsd)
+- [oshino-hw](https://github.com/CodersOfTheNight/oshino-hw)
 
 Creating custom Agent
 ---------------------
