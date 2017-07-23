@@ -14,22 +14,8 @@ Alerting and Monitoring based on [Riemann](https://riemann.io)
 
 [![Build Status](https://travis-ci.org/CodersOfTheNight/oshino.svg?branch=master)](https://travis-ci.org/CodersOfTheNight/oshino)
 [![Coverage Status](https://coveralls.io/repos/github/CodersOfTheNight/oshino/badge.svg?branch=master)](https://coveralls.io/github/CodersOfTheNight/oshino?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/oshino/badge/?version=latest)](http://oshino.readthedocs.io/projects/https://github.com/CodersOfTheNight/oshino-consul/en/latest/?badge=latest)
 
-Output Events
-=============
-By Oshino core
--------------
-- `oshino.heartbeat` - event with ttl of 1.5x of interval. Monitor for `expired` event to know when Oshino is down
-- `oshino.processing_time` - how long it takes to collect metrics. If it takes longer than interval - metric will come with state `error`
-- `oshino.metrics_count` - sends count of collected metrics. Metrics which failed to send are summed up
-
-By Oshino Http Agent
---------------------
-- `<agent_name>.health` - returns result of http call. HTTP status maps into state: success codes into `success`, failure - `failure`. Metric - how long it took in miliseconds.
-
-By Oshino Subprocess Agent
--------------------------
-- `<agent_name>.shell` - returns result of defined shell command. `0` - is counted as sucess, all other codes marks failure and are added to `description` field
 
 Requirements
 ============
@@ -40,27 +26,6 @@ How to install
 ==============
 `pip install oshino`
 
-Config
-======
-- `interval` - how often to send metrics (in seconds)
-- `riemann.host` - riemann hostname (default: localhost)
-- `riemann.port` - riemann port (default: 5555)
-- `riemann.transport` - set transport protocol for riemann (default: TCPTransport)
-- `loglevel` - level of logging (default: INFO)
-- `sentry-dsn` - sentry address for error reporting (default: `None`)
-
-General Config for Agents
-------------------------
-- `tag` - adds this tag to all metrics related to this agent
-
-Http Agent Config
-----------------
-- `url` - which url to call
-
-
-Subprocess Agent Config
------------------------
-- `script` - what shell script to execute
 
 Example config
 --------------
@@ -77,30 +42,6 @@ agents:
     tag: healthcheck
 ```
 
-Suggested Riemann config
--------------------------
-```clojure
- (where (tagged-all ["oshino", "heartbeat"])
-       (changed :state
-         (email "something@something.com")
-       )
-    )
-```
-
-If Oshino goes down, or encounters some performance hickups - you'll be notified
-
-Third party Agents
+More documentation
 ==================
-Oshino agents can be added frome external sources.
-You just need to install agent and set proper module config for it
-
-Known agents:
-- [oshino-consul](https://github.com/CodersOfTheNight/oshino-consul)
-- [oshino-redis](https://github.com/CodersOfTheNight/oshino-redis)
-- [oshino-statsd](https://github.com/CodersOfTheNight/oshino-statsd)
-- [oshino-hw](https://github.com/CodersOfTheNight/oshino-hw)
-
-Creating custom Agent
----------------------
-It can be done by using our [Cookiecutter Template](https://github.com/CodersOfTheNight/oshino-cookiecutter)
-
+More documentation can be found unders [docs](docs/index.md) directory
