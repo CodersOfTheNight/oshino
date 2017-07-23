@@ -44,4 +44,4 @@ agents:
 
 More documentation
 ==================
-More documentation can be found unders [docs](docs/index.md) directory
+More documentation can be found under [docs](docs/index.md) directory
