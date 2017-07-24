@@ -42,6 +42,10 @@ agents:
     tag: healthcheck
 ```
 
+Custom Agents
+===============
+Documentation about additional agents can be found [here](docs/thirdparty.md)
+
 More documentation
 ==================
 More documentation can be found under [docs](docs/index.md) directory
