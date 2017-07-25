@@ -1,6 +1,6 @@
 Third party Agents
 ==================
-Oshino agents can be added frome external sources.
+Oshino agents can be added from external sources.
 You just need to install agent and set proper module config for it
 
 Known agents:
