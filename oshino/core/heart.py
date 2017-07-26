@@ -1,3 +1,4 @@
+import os
 import asyncio
 import sys
 import multiprocessing as mp
@@ -17,6 +18,7 @@ from logbook import NestedSetup
 from ..config import Config
 from ..version import get_version
 from . import send_heartbeat, send_timedelta, send_metrics_count
+from .admin import run as admin_run
 
 
 T = TypeVar("T")
@@ -72,10 +74,13 @@ def instrumentation(client: QueuedClient,
                     logger: Logger,
                     interval: int,
                     delta: int,
-                    events_count: int):
+                    events_count: int,
+                    q: mp.Queue):
     send_heartbeat(client.event, logger, int(interval * 1.5))
     send_timedelta(client.event, logger, delta, interval)
     send_metrics_count(client.event, logger, events_count)
+    q.put({"time_delta": delta})
+    q.put({"event_count": events_count})
 
 
 async def main_loop(cfg: Config,
@@ -101,7 +106,8 @@ async def main_loop(cfg: Config,
                         logger,
                         cfg.interval,
                         td,
-                        len(client.queue.events))
+                        len(client.queue.events),
+                        qout)
 
         flush_riemann(client, transport, logger)
         if continue_fn():
@@ -115,7 +121,8 @@ def start_loop(cfg: Config):
     handlers = []
     handlers.append(StreamHandler(sys.stdout, level=cfg.log_level))
     logger = Logger("Heart")
-    logger.info("Initializing Oshino v{0}".format(get_version()))
+    logger.info("Initializing Oshino v{0}, PID: {1}"
+                .format(get_version(), os.getpid()))
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
                 .format(cfg.interval))
     transport_queue = mp.Queue(maxsize=1000)
@@ -130,10 +137,14 @@ def start_loop(cfg: Config):
 
     admin_cfg = cfg.admin
     if admin_cfg.enabled:
-        logger.info("Starting admin panel at: {0}:{1}"
-                    .format(admin_cfg.host,
-                            admin_cfg.port))
-        pass
+        proc = mp.Process(name="Admin Panel",
+                          target=admin_run,
+                          args=(admin_cfg.host,
+                                admin_cfg.port,
+                                transport_queue,
+                                command_queue))
+        proc.daemon = True
+        proc.start()
 
     setup = NestedSetup(handlers)
     setup.push_application()
