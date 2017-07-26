@@ -20,5 +20,15 @@ def run(host, port, qin, qout):
                         port,
                         os.getpid()))
     app.router.add_get("/", index)
+
+    def stats(request):
+        data = {}
+        while not qin.empty():
+            item = qin.get_nowait()
+            data.update(item)
+        return web.json_response(data)
+
+    app.router.add_get("/stats", stats)
+
     jinja_setup(app, loader=jinja2.PackageLoader("oshino", "templates"))
     web.run_app(app, host=host, port=port)

@@ -79,8 +79,8 @@ def instrumentation(client: QueuedClient,
     send_heartbeat(client.event, logger, int(interval * 1.5))
     send_timedelta(client.event, logger, delta, interval)
     send_metrics_count(client.event, logger, events_count)
-    q.put({"time_delta": delta})
-    q.put({"event_count": events_count})
+    q.put_nowait({"time_delta": delta})
+    q.put_nowait({"event_count": events_count})
 
 
 async def main_loop(cfg: Config,
