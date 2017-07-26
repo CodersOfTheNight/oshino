@@ -118,9 +118,19 @@ async def main_loop(cfg: Config,
 
 
 def start_loop(cfg: Config):
+    logger = Logger("Heart")
     handlers = []
     handlers.append(StreamHandler(sys.stdout, level=cfg.log_level))
-    logger = Logger("Heart")
+
+    if cfg.sentry_dsn:
+        client = SentryClient(cfg.sentry_dsn)
+        handlers.append(SentryHandler(client,
+                                      level=logbook.ERROR,
+                                      bubble=True))
+
+    setup = NestedSetup(handlers)
+    setup.push_application()
+
     logger.info("Initializing Oshino v{0}, PID: {1}"
                 .format(get_version(), os.getpid()))
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
@@ -129,13 +139,8 @@ def start_loop(cfg: Config):
     command_queue = mp.Queue(maxsize=100)
     qs = [transport_queue, command_queue]
 
-    if cfg.sentry_dsn:
-        client = SentryClient(cfg.sentry_dsn)
-        handlers.append(SentryHandler(client,
-                                      level=logbook.ERROR,
-                                      bubble=True))
-
     admin_cfg = cfg.admin
+    logger.info("Admin is enabled? {0}".format(admin_cfg.enabled))
     if admin_cfg.enabled:
         proc = mp.Process(name="Admin Panel",
                           target=admin_run,
@@ -145,9 +150,6 @@ def start_loop(cfg: Config):
                                 command_queue))
         proc.daemon = True
         proc.start()
-
-    setup = NestedSetup(handlers)
-    setup.push_application()
 
     loop = create_loop()
     try:
