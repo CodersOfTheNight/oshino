@@ -5,7 +5,7 @@ from pytest import fixture
 
 from riemann_client.transport import TCPTransport
 
-from oshino.config import Config, RiemannConfig, load
+from oshino.config import Config, RiemannConfig, load, AdminConfig
 from oshino.agents.test_agent import StubAgent
 from oshino import version
 from oshino import get_version
@@ -22,7 +22,11 @@ def base_config():
                                "module": "oshino.agents.test_agent.StubAgent",
                                "tag": "test"
                                }
-                              ]
+                              ],
+                   "admin": {"enabled": True,
+                             "host": "localhost",
+                             "port": 9999
+                             }
                    })
 
 
@@ -90,3 +94,18 @@ class TestAgents(object):
     def test_agent_tag(self, base_config):
         agents = base_config.agents
         assert agents[0].tag == "test"
+
+
+class TestAdmin(object):
+
+    def test_base_config_get_admin(self, base_config):
+        admin_cfg = base_config.admin
+        assert isinstance(admin_cfg, AdminConfig)
+        assert admin_cfg.enabled
+        assert admin_cfg.host == "localhost"
+        assert admin_cfg.port == 9999
+
+    def test_incomplete_config_get_admin(self, incomplete_config):
+        admin_cfg = base_config.admin
+        assert isinstance(admin_cfg, AdminConfig)
+        assert not admin_cfg.enabled

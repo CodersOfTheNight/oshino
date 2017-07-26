@@ -72,6 +72,25 @@ class AgentConfig(ConfigBase):
         return self.instance.is_valid()
 
 
+class AdminConfig(ConfigBase):
+
+    @property
+    def host(self):
+        return self._data["host"]
+
+    @property
+    def port(self):
+        return int(self.data["port"])
+
+    @property
+    def enabled(self):
+        return self._data.get("enabled", False)
+
+    @staticmethod
+    def default():
+        return AdminConfig([])
+
+
 class Config(ConfigBase):
 
     """
@@ -110,6 +129,13 @@ class Config(ConfigBase):
     @property
     def sentry_dsn(self):
         return self._data.get("sentry-dsn", None)
+
+    @property
+    def admin(self):
+        if "admin" in self._data:
+            return AdminConfig(self._data["admin"])
+        else:
+            return AdminConfig.default()
 
 
 def load(config_file):
