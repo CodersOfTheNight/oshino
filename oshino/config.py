@@ -74,13 +74,20 @@ class AgentConfig(ConfigBase):
 
 class AdminConfig(ConfigBase):
 
+    """
+    Config for admin panel
+    """
+
+    def __init__(self, cfg):
+        self._data = cfg
+
     @property
     def host(self):
         return self._data["host"]
 
     @property
     def port(self):
-        return int(self.data["port"])
+        return int(self._data["port"])
 
     @property
     def enabled(self):
@@ -88,7 +95,7 @@ class AdminConfig(ConfigBase):
 
     @staticmethod
     def default():
-        return AdminConfig([])
+        return AdminConfig({})
 
 
 class Config(ConfigBase):

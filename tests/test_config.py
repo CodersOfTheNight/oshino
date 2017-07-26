@@ -106,6 +106,6 @@ class TestAdmin(object):
         assert admin_cfg.port == 9999
 
     def test_incomplete_config_get_admin(self, incomplete_config):
-        admin_cfg = base_config.admin
+        admin_cfg = incomplete_config.admin
         assert isinstance(admin_cfg, AdminConfig)
         assert not admin_cfg.enabled
