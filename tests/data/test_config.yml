@@ -10,3 +10,7 @@ agents:
     module: oshino.agents.subprocess_agent.SubprocessAgent
     script: "echo 'Hello world!'"
     tag: "bash"
+admin:
+  enabled: true
+  host: localhost
+  port: 9999

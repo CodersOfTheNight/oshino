@@ -1,5 +1,7 @@
 import asyncio
 import sys
+import multiprocessing as mp
+
 import logbook
 
 from time import time
@@ -80,7 +82,9 @@ async def main_loop(cfg: Config,
                     logger: Logger,
                     transport_cls: Generic[T],
                     continue_fn: callable,
-                    loop: BaseEventLoop):
+                    loop: BaseEventLoop,
+                    qin: mp.Queue,
+                    qout: mp.Queue):
     riemann = cfg.riemann
     transport = transport_cls(riemann.host, riemann.port)
     client = QueuedClient(transport)
@@ -114,11 +118,22 @@ def start_loop(cfg: Config):
     logger.info("Initializing Oshino v{0}".format(get_version()))
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
                 .format(cfg.interval))
+    transport_queue = mp.Queue()
+    command_queue = mp.Queue()
+    qs = [transport_queue, command_queue]
+
     if cfg.sentry_dsn:
         client = SentryClient(cfg.sentry_dsn)
         handlers.append(SentryHandler(client,
                                       level=logbook.ERROR,
                                       bubble=True))
+
+    admin_cfg = cfg.admin
+    if admin_cfg.enabled:
+        logger.info("Starting admin panel at: {0}:{1}"
+                    .format(admin_cfg.host,
+                            admin_cfg.port))
+        pass
 
     setup = NestedSetup(handlers)
     setup.push_application()
@@ -129,6 +144,11 @@ def start_loop(cfg: Config):
                                           logger,
                                           cfg.riemann.transport,
                                           forever,
-                                          loop=loop))
+                                          loop=loop,
+                                          qin=command_queue,
+                                          qout=transport_queue))
     finally:
         loop.close()
+        for q in qs:
+            q.close()
+            q.join_thread()
