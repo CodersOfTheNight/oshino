@@ -118,8 +118,8 @@ def start_loop(cfg: Config):
     logger.info("Initializing Oshino v{0}".format(get_version()))
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
                 .format(cfg.interval))
-    transport_queue = mp.Queue()
-    command_queue = mp.Queue()
+    transport_queue = mp.Queue(maxsize=1000)
+    command_queue = mp.Queue(maxsize=100)
     qs = [transport_queue, command_queue]
 
     if cfg.sentry_dsn:
