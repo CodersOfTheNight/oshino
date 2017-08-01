@@ -8,6 +8,7 @@ Known agents:
 - [oshino-redis](https://github.com/CodersOfTheNight/oshino-redis)
 - [oshino-statsd](https://github.com/CodersOfTheNight/oshino-statsd)
 - [oshino-hw](https://github.com/CodersOfTheNight/oshino-hw)
+- [oshino-prometheus](https://github.com/CodersOfTheNight/oshino-prometheus)
 
 Creating custom Agent
 ---------------------
