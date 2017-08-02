@@ -5,4 +5,4 @@ Table of Contents:
     - [Events](events.md)
     - [Config](config.md)
 - Extending
-    - [Third Party Agents](thirdpary.md)
+    - [Third Party Agents](thirdparty.md)
