@@ -33,6 +33,7 @@ However, it is rather unknown to the most of people, and configuring can be not 
 
 To mitigate this problem, documentation for setuping Riemann for this scenario has been made:
 [riemann](docs/riemann.md)
+
 Example config
 --------------
 ```yaml
