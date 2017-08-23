@@ -8,7 +8,7 @@ It is possible (and quite easy) to alert on certain events. Watching single raw 
 but Riemann allows multiple options of aggregation and transformation of events - calculate percentiles, rates,
 apdex etc...
 
-At the moment, the best source of information can be found in this book: [ArtOfMonitoring(https://www.artofmonitoring.com/)
+At the moment, the best source of information can be found in this book: [ArtOfMonitoring](https://www.artofmonitoring.com/)
 
 Installing
 -----------
