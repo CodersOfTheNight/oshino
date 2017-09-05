@@ -16,3 +16,6 @@ requests
 chardet
 # Error handling
 raven
+
+# Other oshino parts
+oshino-admin
