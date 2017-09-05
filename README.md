@@ -26,6 +26,13 @@ How to install
 ==============
 `pip install oshino`
 
+Riemann. What? Why? How?
+=========================
+Riemann is a backbone of this system. It does alerting, it receives metrics, it aggregates metrics and it decides where to send them (eg.: Graphite, Logstash).
+However, it is rather unknown to the most of people, and configuring can be not trivial at all. 
+
+To mitigate this problem, documentation for setuping Riemann for this scenario has been made:
+[riemann](docs/riemann.md)
 
 Example config
 --------------
