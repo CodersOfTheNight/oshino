@@ -77,3 +77,89 @@ Most likely 90% of your logic will look like this - you search for something and
 `index` is used to register event in index table, and it's key is formed via `host` + `service` pair. If new event comes with same key, it overrides current one. In this configuration, everything is indexed. However it has it's cost, so usually you're filtering out relevant events and index just them.
 
 Lastly, `#(info %)` is a shorthand function. There's no point to dwelve deep into it. Basically it takes N arguments and prints them out. `%` is a shorthand to push everything you got at this point. You can add any prefix easily by doing `#(info "A prefix " %)`, `%` usually consists of event, so it's good for debuging purposes.
+
+Making Config relevant for Oshino
+----------------------------------
+### Creating Email notifier
+
+Probably the most important part - notify you when something goes terribly wrong.
+
+This process will involve creating module and importing it to Riemann's config.
+Usual convention is: `<app_name>/<group>/<module>.clj`
+For this example, we can do `app/notifiers/email.clj`
+
+This file needs to be created under `/etc/riemann/` path. 
+So, to be on the same page - lets create and open a file under `/etc/riemann/app/notifiers/email.clj`
+
+First step is to define namespace: 
+```clojure
+(ns app.notifiers.email)
+```
+
+What goes further can be highly opionated, you can use any service you want, I just happened to be using MailGun for a while now, so it was natural to implement using it.
+
+```clojure
+(ns app.notifiers.email
+    (:require [riemann.mailgun :refer :all])
+)
+```
+
+So now we have a namespace and we say, that we will want to use MailGun utilities defined in Riemann's library.
+
+Next, we create a function which will emails event to defined address:
+
+```clojure
+(def email(mailgun {:sandbox "<sandbox_key>.mailgun.org" :from "<notifier_name>@<our_domain>" :service-key "<service_key>"}))
+```
+
+So basically we use existing function `mailgun`, give it most of required params (which makes it a partial function).
+
+Usage goes like this: 
+```clojure
+(email <email_i_want_to>@<notify>)
+```
+
+Which leaves a function with only one required param - event, which will be given implicitly.
+
+Full module looks like this:
+
+```clojure
+(ns app.notifiers.email
+    (:require [riemann.mailgun :refer :all])
+)
+
+(def email(mailgun {:sandbox "<sandbox_key>.mailgun.org" :from "<notifier_name>@<our_domain>" :service-key "<service_key>"}))
+```
+
+### Including our modules
+
+Modules are included by using `require` function. It needs to go somewhere inside `riemann.config` file, and looks like this:
+```clojure
+(require '[app.notifiers.email :refer :all])
+```
+
+Syntax isn't as clear as many of us would want to, but the basic idea is that we are importing everything from `app.notifiers.email` module.
+
+### Actual alering
+```clojure
+(require '[app.notifiers.email :refer :all])
+
+(streams
+    (where (tagged-all ["oshino", "heartbeat"])
+       (changed :state
+         (email "my@email.com")
+       )
+    )
+)
+```
+
+Ok, this very important part and it might be a little bit confusing at start.
+`(where (tagged-all ["oshino", "heartbeat"])` says that we should keep only events which has both of these tags inside them.
+
+`(changed :state)` this is the tricky part, and genius of it lies inside design of Riemann.
+Lets start with the concept of TimeToLive (TTL). Each unique event (defined by index, which is `host` + `service` concated strings) have certain time to live. If same event occurs, TTL counter resets. 
+This cycle repeats on and on again. However, it timer exceeds the limit, new clone event comes into system, only difference is - it has state `expired`.
+To summarize, Oshino is constantly sending heartbeat events. If any heartbeat misses - we get notify.
+Note: `(changed :state)` will be triggered in both `ok -> expired` and `expired -> ok` state transitions. It means that you will know when system shutsoff as well as it recovers (Could be temporary network issue for example)
+
+And, of course, `(email "my@email.com")` send us an email.
