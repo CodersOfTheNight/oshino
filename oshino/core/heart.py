@@ -46,7 +46,8 @@ def init(agents: list):
         agent.on_start()
 
 
-async def step(client: object, agents: list, loop: BaseEventLoop):
+async def step(client: object, agents: list, timeout: int, loop: BaseEventLoop):
+    tasks = []
 
     for agent, agent_cfg in agents:
         tags = [agent_cfg.tag] if agent_cfg.tag else []
@@ -63,7 +64,8 @@ async def step(client: object, agents: list, loop: BaseEventLoop):
 
             client.event(**kwargs)
 
-        await agent.process(event_fn)
+        tasks.append(agent.process(event_fn))
+    return await asyncio.wait(tasks, timeout=timeout)
 
 
 def instrumentation(client: QueuedClient,
@@ -90,7 +92,11 @@ async def main_loop(cfg: Config,
 
     while True:
         ts = time()
-        await step(client, agents, loop=loop)
+        (done, pending) = await step(client,
+                                     agents,
+                                     timeout=cfg.interval * 1.5,
+                                     loop=loop)
+
         te = time()
         td = te - ts
         instrumentation(client,

@@ -1,6 +1,8 @@
 import logging
 import asyncio
 
+from time import time
+
 from pytest import mark, fixture
 from oshino.core import send_heartbeat, send_timedelta, send_metrics_count
 from oshino.config import AgentConfig, Config
@@ -11,7 +13,7 @@ from oshino.core.heart import (step,
                                init,
                                forever,
                                create_loop)
-from oshino.agents.test_agent import StubAgent
+from oshino.agents.test_agent import StubAgent, LaggingAgent
 from .fixtures import mock_transport, mock_client, broken_transport
 
 logger = logging.getLogger(__name__)
@@ -21,13 +23,18 @@ logger = logging.getLogger(__name__)
 def stub_agent():
     return StubAgent({}), AgentConfig({})
 
+@fixture
+def lagging_agent():
+    return LaggingAgent({}, 2), AgentConfig({})
+
 
 @fixture
 def base_config():
     return Config({"agents": [{"name": "test-agent",
                                "module": "oshino.agents.test_agent.StubAgent",
                                }
-                              ]
+                              ],
+                    "interval": 1
                    })
 
 
@@ -81,7 +88,7 @@ class TestHeart(object):
 
     @mark.asyncio
     async def test_step(self, stub_agent, mock_client, event_loop):
-        await step(mock_client, [stub_agent], loop=event_loop)
+        await step(mock_client, [stub_agent], loop=event_loop, timeout=1)
         assert len(mock_client.events) == 1
 
     def test_instrumentation(self, mock_client):
@@ -114,3 +121,26 @@ class TestHeart(object):
 
     def test_event_loop_creation(self):
         assert isinstance(create_loop(), asyncio.BaseEventLoop)
+
+class TestRobustness(object):
+
+    @mark.asyncio
+    async def test_w_lagging_agent(self,
+                                   stub_agent,
+                                   lagging_agent,
+                                   mock_client,
+                                   event_loop):
+        ts = time()
+        (done, pending) = await step(
+                mock_client,
+                [stub_agent, lagging_agent],
+                timeout=1.5,
+                loop=event_loop
+        )
+        te = time()
+        td = te - ts
+
+        assert td < 1.6
+        assert len(mock_client.events) == 1
+        assert len(done) == 1
+        assert len(pending) == 1
