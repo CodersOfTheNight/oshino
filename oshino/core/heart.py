@@ -7,7 +7,6 @@ from typing import TypeVar, Generic
 from asyncio import BaseEventLoop
 
 from logbook import Logger, StreamHandler
-from riemann_client.client import QueuedClient
 from raven.handlers.logbook import SentryHandler
 from raven import Client as SentryClient
 from logbook import NestedSetup
@@ -83,7 +82,7 @@ async def main_loop(cfg: Config,
                     loop: BaseEventLoop):
     riemann = cfg.riemann
     transport = transport_cls(riemann.host, riemann.port)
-    client = QueuedClient(transport)
+    client = processor.QClient(transport)
     agents = create_agents(cfg.agents)
 
     init(agents)
