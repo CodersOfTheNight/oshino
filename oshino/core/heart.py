@@ -31,7 +31,6 @@ def forever():
     return True
 
 
-
 def create_agents(agents_cfg: list):
     return list(map(lambda x: (x.instance, x), agents_cfg))
 
@@ -41,7 +40,10 @@ def init(agents: list):
         agent.on_start()
 
 
-async def step(client: object, agents: list, timeout: int, loop: BaseEventLoop):
+async def step(client: object,
+               agents: list,
+               timeout: int,
+               loop: BaseEventLoop):
     tasks = []
 
     for agent, agent_cfg in agents:
