@@ -92,8 +92,8 @@ class TestHeart(object):
         assert len(mock_client.events) == 1
 
     def test_instrumentation(self, mock_client):
-        instrumentation(mock_client, logger, 0, 0, 0)
-        assert len(mock_client.events) == 3
+        instrumentation(mock_client, logger, 0, 0, 0, 0)
+        assert len(mock_client.events) == 4
 
     def test_flush(self, mock_client, mock_transport):
         assert len(mock_client.events) == 0

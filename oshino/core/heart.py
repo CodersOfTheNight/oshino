@@ -14,7 +14,10 @@ from logbook import NestedSetup
 
 from ..config import Config
 from ..version import get_version
-from . import send_heartbeat, send_timedelta, send_metrics_count
+from . import (send_heartbeat,
+               send_timedelta,
+               send_pending_events_count,
+               send_metrics_count)
 
 
 T = TypeVar("T")
@@ -72,10 +75,12 @@ def instrumentation(client: QueuedClient,
                     logger: Logger,
                     interval: int,
                     delta: int,
-                    events_count: int):
+                    events_count: int,
+                    pending_events: int):
     send_heartbeat(client.event, logger, int(interval * 1.5))
     send_timedelta(client.event, logger, delta, interval)
     send_metrics_count(client.event, logger, events_count)
+    send_pending_events_count(client.event, logger, events_count)
 
 
 async def main_loop(cfg: Config,
@@ -103,7 +108,8 @@ async def main_loop(cfg: Config,
                         logger,
                         cfg.interval,
                         td,
-                        len(client.queue.events))
+                        len(client.queue.events),
+                        len(pending))
 
         flush_riemann(client, transport, logger)
         if continue_fn():
