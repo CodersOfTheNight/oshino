@@ -8,11 +8,11 @@ from oshino.core import send_heartbeat, send_timedelta, send_metrics_count
 from oshino.config import AgentConfig, Config
 from oshino.core.heart import (step,
                                instrumentation,
-                               flush_riemann,
                                create_agents,
                                init,
                                forever,
                                create_loop)
+from oshino.core import processor
 from oshino.agents.test_agent import StubAgent, LaggingAgent
 from .fixtures import mock_transport, mock_client, broken_transport
 
@@ -99,12 +99,12 @@ class TestHeart(object):
         assert len(mock_client.events) == 0
         mock_client.event()
         assert len(mock_client.events) == 1
-        flush_riemann(mock_client, mock_transport, logger)
+        processor.flush(mock_client, mock_transport, logger)
         assert len(mock_client.events) == 0
         assert not mock_transport.connected
 
     def test_flush_w_error(self, mock_client, broken_transport):
-        flush_riemann(mock_client, broken_transport, logger)
+        processor.flush(mock_client, broken_transport, logger)
 
     def test_agents_creation(self, base_config):
         result = create_agents(base_config.agents)

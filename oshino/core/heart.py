@@ -18,6 +18,7 @@ from . import (send_heartbeat,
                send_timedelta,
                send_pending_events_count,
                send_metrics_count)
+from . import processor
 
 
 T = TypeVar("T")
@@ -30,14 +31,6 @@ def create_loop():
 def forever():
     return True
 
-
-def flush_riemann(client, transport, logger):
-    try:
-        transport.connect()
-        client.flush()
-        transport.disconnect()
-    except ConnectionRefusedError as ce:
-        logger.warn(ce)
 
 
 def create_agents(agents_cfg: list):
@@ -111,7 +104,7 @@ async def main_loop(cfg: Config,
                         len(client.queue.events),
                         len(pending))
 
-        flush_riemann(client, transport, logger)
+        processor.flush(client, transport, logger)
         if continue_fn():
             await asyncio.sleep(cfg.interval - int(td), loop=loop)
         else:
