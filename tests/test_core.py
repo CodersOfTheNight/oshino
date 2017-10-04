@@ -124,6 +124,7 @@ class TestHeart(object):
 
 class TestRobustness(object):
 
+    @mark.slow
     @mark.asyncio
     async def test_w_lagging_agent(self,
                                    stub_agent,
