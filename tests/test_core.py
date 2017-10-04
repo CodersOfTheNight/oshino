@@ -200,5 +200,20 @@ class TestAugment(object):
         # 30, 120, 210
         assert sum([event["metric"] for event in filtered]) == 360
 
+    def test_lagging_augment(self, mock_client, event_loop):
+        from time import time, sleep
+        
+        def stub_generator():
+            client = yield
 
+            while True:
+                event = yield
+                sleep(10)
 
+        processor.register_augment(mock_client, "test", stub_generator(), None)
+        ts = time()
+        mock_client.event(service="test")
+        te = time()
+        td = te - ts
+        assert len(mock_client.events) == 1
+        assert td < 0.1
