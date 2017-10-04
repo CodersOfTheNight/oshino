@@ -144,3 +144,7 @@ class TestRobustness(object):
         assert len(mock_client.events) == 1
         assert len(done) == 1
         assert len(pending) == 1
+
+        # Wait for our slow guy to finish
+        for p in pending:
+            await p
