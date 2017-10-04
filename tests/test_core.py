@@ -149,3 +149,56 @@ class TestRobustness(object):
         # Wait for our slow guy to finish
         for p in pending:
             await p
+
+class TestAugment(object):
+    
+    def test_simple_augment(self, mock_client, event_loop):
+        events_received = 0
+        
+        def stub_generator():
+            nonlocal events_received
+            client = yield
+            print("Got client")
+
+            while True:
+                event = yield
+                print("Got event")
+                events_received += 1
+
+        processor.register_augment(mock_client, "test", stub_generator(), None)
+        mock_client.event(service="test")
+        mock_client.event(service="test")
+        mock_client.event(service="test")
+        assert events_received == 3
+
+    def test_window_n_3(self, mock_client, event_loop):
+        def stub_generator():
+            client = yield
+            print("Got client")
+            acc = 0
+
+            while True:
+                for i in range(0, 3):
+                    event = yield
+                    print("Got event")
+                    acc += event["metric"]
+                client.event(service="accumulated", metric=acc)
+                acc = 0
+
+        processor.register_augment(mock_client, "test", stub_generator(), None)
+
+        for i in range(0, 10):
+            mock_client.event(service="test", metric=i*10)
+
+        # 10 events pushed, every 3 extra event added (10/3 = 3)
+        assert len(mock_client.events) == 13
+
+        filtered = list(filter(lambda x: x["service"] == "accumulated",
+                               mock_client.events))
+
+        assert len(filtered) == 3
+        # 30, 120, 210
+        assert sum([event["metric"] for event in filtered]) == 360
+
+
+
