@@ -1,13 +1,17 @@
 from riemann_client.transport import BlankTransport
 
+from oshino.core.processor import AugmentFixture
 
-class MockClient(object):
+
+class MockClient(AugmentFixture):
 
     def __init__(self):
         self.events = []
+        self.augments = {}
 
-    def event(self, *args, **kwargs):
-        self.events.append((args, kwargs))
+    def event(self, **kwargs):
+        self.apply_augment(**kwargs)
+        self.events.append(kwargs)
 
     def flush(self):
         self.events = []

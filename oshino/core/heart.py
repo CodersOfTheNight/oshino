@@ -7,14 +7,17 @@ from typing import TypeVar, Generic
 from asyncio import BaseEventLoop
 
 from logbook import Logger, StreamHandler
-from riemann_client.client import QueuedClient
 from raven.handlers.logbook import SentryHandler
 from raven import Client as SentryClient
 from logbook import NestedSetup
 
 from ..config import Config
 from ..version import get_version
-from . import send_heartbeat, send_timedelta, send_metrics_count
+from . import (send_heartbeat,
+               send_timedelta,
+               send_pending_events_count,
+               send_metrics_count)
+from . import processor
 
 
 T = TypeVar("T")
@@ -28,15 +31,6 @@ def forever():
     return True
 
 
-def flush_riemann(client, transport, logger):
-    try:
-        transport.connect()
-        client.flush()
-        transport.disconnect()
-    except ConnectionRefusedError as ce:
-        logger.warn(ce)
-
-
 def create_agents(agents_cfg: list):
     return list(map(lambda x: (x.instance, x), agents_cfg))
 
@@ -46,7 +40,11 @@ def init(agents: list):
         agent.on_start()
 
 
-async def step(client: object, agents: list, loop: BaseEventLoop):
+async def step(client: object,
+               agents: list,
+               timeout: int,
+               loop: BaseEventLoop):
+    tasks = []
 
     for agent, agent_cfg in agents:
         tags = [agent_cfg.tag] if agent_cfg.tag else []
@@ -63,17 +61,20 @@ async def step(client: object, agents: list, loop: BaseEventLoop):
 
             client.event(**kwargs)
 
-        await agent.process(event_fn)
+        tasks.append(agent.process(event_fn))
+    return await asyncio.wait(tasks, timeout=timeout)
 
 
-def instrumentation(client: QueuedClient,
+def instrumentation(client: processor.QClient,
                     logger: Logger,
                     interval: int,
                     delta: int,
-                    events_count: int):
+                    events_count: int,
+                    pending_events: int):
     send_heartbeat(client.event, logger, int(interval * 1.5))
     send_timedelta(client.event, logger, delta, interval)
     send_metrics_count(client.event, logger, events_count)
+    send_pending_events_count(client.event, logger, events_count)
 
 
 async def main_loop(cfg: Config,
@@ -83,23 +84,28 @@ async def main_loop(cfg: Config,
                     loop: BaseEventLoop):
     riemann = cfg.riemann
     transport = transport_cls(riemann.host, riemann.port)
-    client = QueuedClient(transport)
+    client = processor.QClient(transport)
     agents = create_agents(cfg.agents)
 
     init(agents)
 
     while True:
         ts = time()
-        await step(client, agents, loop=loop)
+        (done, pending) = await step(client,
+                                     agents,
+                                     timeout=cfg.interval * 1.5,
+                                     loop=loop)
+
         te = time()
         td = te - ts
         instrumentation(client,
                         logger,
                         cfg.interval,
                         td,
-                        len(client.queue.events))
+                        len(client.queue.events),
+                        len(pending))
 
-        flush_riemann(client, transport, logger)
+        processor.flush(client, transport, logger)
         if continue_fn():
             await asyncio.sleep(cfg.interval - int(td), loop=loop)
         else:

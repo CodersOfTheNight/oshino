@@ -25,3 +25,11 @@ def send_metrics_count(event_fn, logger, count):
     event_fn(metric_f=count,
              service="oshino.metrics_count",
              tags=["oshino", "instrumentation"])
+
+
+def send_pending_events_count(event_fn, logger, count):
+    logger.debug("There are {0} events which are still being processed"
+                 .format(count))
+    event_fn(metric_f=count,
+             service="oshino.pending_events_count",
+             tags=["oshino", "instrumentation"])
