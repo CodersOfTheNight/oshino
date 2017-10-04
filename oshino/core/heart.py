@@ -63,7 +63,7 @@ async def step(client: object, agents: list, timeout: int, loop: BaseEventLoop):
     return await asyncio.wait(tasks, timeout=timeout)
 
 
-def instrumentation(client: QueuedClient,
+def instrumentation(client: processor.QClient,
                     logger: Logger,
                     interval: int,
                     delta: int,
