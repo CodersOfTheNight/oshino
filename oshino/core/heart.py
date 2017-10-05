@@ -105,7 +105,7 @@ async def main_loop(cfg: Config,
                         len(client.queue.events),
                         len(pending))
 
-        processor.flush(client, transport, logger)
+        await processor.flush(client, transport, logger)
         if continue_fn():
             await asyncio.sleep(cfg.interval - int(td), loop=loop)
         else:

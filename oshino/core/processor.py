@@ -1,3 +1,5 @@
+import asyncio
+
 from riemann_client.client import QueuedClient
 
 
@@ -19,17 +21,31 @@ class QClient(QueuedClient, AugmentFixture):
         self.augments = {}
 
     def event(self, **data):
-        self.apply_augment(**data)
+        super(QClient, self).event(**data)
+
+    async def augmented_event(self, **data):
+        await self.apply_augment(**data)
         super(QClient, self).event(**data)
 
 
-def flush(client, transport, logger):
-    try:
-        transport.connect()
-        client.flush()
-        transport.disconnect()
-    except ConnectionRefusedError as ce:
-        logger.warn(ce)
+async def flush(client, transport, logger):
+    future = asyncio.Future()
+
+    async def process_async(future):
+        try:
+            transport.connect()
+            client.flush()
+            transport.disconnect()
+
+            future.set_result(True)
+        except ConnectionRefusedError as ce:
+            logger.warn(ce)
+
+            future.set_result(False)
+
+    asyncio.ensure_future(process_async(future))
+    await future
+    return future.result()
 
 
 def register_augment(client, key, generator, logger):

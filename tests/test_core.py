@@ -95,16 +95,24 @@ class TestHeart(object):
         instrumentation(mock_client, logger, 0, 0, 0, 0)
         assert len(mock_client.events) == 4
 
-    def test_flush(self, mock_client, mock_transport):
+    @mark.asyncio
+    async def test_flush(self,
+                         mock_client,
+                         mock_transport,
+                         event_loop):
         assert len(mock_client.events) == 0
         mock_client.event()
         assert len(mock_client.events) == 1
-        processor.flush(mock_client, mock_transport, logger)
+        await processor.flush(mock_client, mock_transport, logger)
         assert len(mock_client.events) == 0
         assert not mock_transport.connected
 
-    def test_flush_w_error(self, mock_client, broken_transport):
-        processor.flush(mock_client, broken_transport, logger)
+    @mark.asyncio
+    async def test_flush_w_error(self,
+                                 mock_client,
+                                 broken_transport,
+                                 event_loop):
+        await processor.flush(mock_client, broken_transport, logger)
 
     def test_agents_creation(self, base_config):
         result = create_agents(base_config.agents)
