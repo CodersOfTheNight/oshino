@@ -160,7 +160,8 @@ class TestRobustness(object):
 
 class TestAugment(object):
     
-    def test_simple_augment(self, mock_client, event_loop):
+    @mark.async
+    async def test_simple_augment(self, mock_client, event_loop):
         events_received = 0
         
         def stub_generator():
@@ -177,9 +178,12 @@ class TestAugment(object):
         mock_client.event(service="test")
         mock_client.event(service="test")
         mock_client.event(service="test")
+
+        await mock_client.consume_augments()
         assert events_received == 3
 
-    def test_window_n_3(self, mock_client, event_loop):
+    @mark.asyncio
+    async def test_window_n_3(self, mock_client, event_loop):
         def stub_generator():
             client = yield
             print("Got client")
@@ -198,6 +202,8 @@ class TestAugment(object):
         for i in range(0, 10):
             mock_client.event(service="test", metric=i*10)
 
+        await mock_client.consume_augments()
+
         # 10 events pushed, every 3 extra event added (10/3 = 3)
         assert len(mock_client.events) == 13
 
@@ -208,7 +214,8 @@ class TestAugment(object):
         # 30, 120, 210
         assert sum([event["metric"] for event in filtered]) == 360
 
-    def test_lagging_augment(self, mock_client, event_loop):
+    @mark.async
+    async def test_lagging_augment(self, mock_client, event_loop):
         from time import time, sleep
         
         def stub_generator():
@@ -221,6 +228,7 @@ class TestAugment(object):
         processor.register_augment(mock_client, "test", stub_generator(), None)
         ts = time()
         mock_client.event(service="test")
+        await mock_client.consume_augments()
         te = time()
         td = te - ts
         assert len(mock_client.events) == 1
