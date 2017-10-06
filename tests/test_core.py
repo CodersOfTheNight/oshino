@@ -160,7 +160,7 @@ class TestRobustness(object):
 
 class TestAugment(object):
     
-    @mark.async
+    @mark.asyncio
     async def test_simple_augment(self, mock_client, event_loop):
         events_received = 0
         
@@ -214,7 +214,7 @@ class TestAugment(object):
         # 30, 120, 210
         assert sum([event["metric"] for event in filtered]) == 360
 
-    @mark.async
+    @mark.asyncio
     async def test_lagging_augment(self, mock_client, event_loop):
         from time import time, sleep
         

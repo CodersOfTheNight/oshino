@@ -5,19 +5,29 @@ from riemann_client.client import QueuedClient
 
 class AugmentFixture(object):
 
-    async def apply_augment(self, **data):
-        if "service" not in data:
-            return
+    def apply_augment(self, **data):
+        async def process_async(future):
+            if "service" not in data:
+                return
 
-        key = data["service"]
-        if key in self.augments:
-            subscribers = self.augments[key]
-            for sub in subscribers:
-                sub.send(data)
+            key = data["service"]
+            if key in self.augments:
+                subscribers = self.augments[key]
+                for sub in subscribers:
+                    sub.send(data)
+            future.set_result(True)
+        return process_async
 
     async def consume_augments(self, timeout=0.5):
-        if len(self.tasks) > 0:
-            return await asyncio.wait(self.tasks, timeout=timeout)
+        futures = []
+        for task in self.tasks:
+            future = asyncio.Future()
+            asyncio.ensure_future(task(future))
+            futures.append(future)
+
+
+        if len(futures) > 0:
+            return await asyncio.wait(futures, timeout=timeout)
 
 
 class QClient(QueuedClient, AugmentFixture):
