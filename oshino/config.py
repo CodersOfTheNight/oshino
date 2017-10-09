@@ -111,6 +111,10 @@ class Config(ConfigBase):
     def sentry_dsn(self):
         return self._data.get("sentry-dsn", None)
 
+    @property
+    def executors_count(self):
+        return self._data.get("executors-count", 10)
+
 
 def load(config_file):
     """

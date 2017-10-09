@@ -14,7 +14,7 @@ from oshino.core.heart import (step,
                                create_loop)
 from oshino.core import processor
 from oshino.agents.test_agent import StubAgent, LaggingAgent
-from .fixtures import mock_transport, mock_client, broken_transport
+from .fixtures import mock_transport, mock_client, broken_transport, executor
 
 logger = logging.getLogger(__name__)
 
@@ -99,11 +99,12 @@ class TestHeart(object):
     async def test_flush(self,
                          mock_client,
                          mock_transport,
+                         executor,
                          event_loop):
         assert len(mock_client.events) == 0
         mock_client.event()
         assert len(mock_client.events) == 1
-        await processor.flush(mock_client, mock_transport, logger)
+        await processor.flush(mock_client, mock_transport, executor, logger)
         assert len(mock_client.events) == 0
         assert not mock_transport.connected
 
@@ -111,8 +112,9 @@ class TestHeart(object):
     async def test_flush_w_error(self,
                                  mock_client,
                                  broken_transport,
+                                 executor,
                                  event_loop):
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport, executor, logger)
 
     def test_agents_creation(self, base_config):
         result = create_agents(base_config.agents)
@@ -161,7 +163,7 @@ class TestRobustness(object):
 class TestAugment(object):
     
     @mark.asyncio
-    async def test_simple_augment(self, mock_client, event_loop):
+    async def test_simple_augment(self, mock_client, executor, event_loop):
         events_received = 0
         
         def stub_generator():
@@ -179,11 +181,11 @@ class TestAugment(object):
         mock_client.event(service="test")
         mock_client.event(service="test")
 
-        await mock_client.consume_augments()
+        await mock_client.consume_augments(executor)
         assert events_received == 3
 
     @mark.asyncio
-    async def test_window_n_3(self, mock_client, event_loop):
+    async def test_window_n_3(self, mock_client, executor, event_loop):
         def stub_generator():
             client = yield
             print("Got client")
@@ -202,7 +204,7 @@ class TestAugment(object):
         for i in range(0, 10):
             mock_client.event(service="test", metric=i*10)
 
-        await mock_client.consume_augments()
+        await mock_client.consume_augments(executor)
 
         # 10 events pushed, every 3 extra event added (10/3 = 3)
         assert len(mock_client.events) == 13
@@ -215,21 +217,35 @@ class TestAugment(object):
         assert sum([event["metric"] for event in filtered]) == 360
 
     @mark.asyncio
-    async def test_lagging_augment(self, mock_client, event_loop):
+    async def test_lagging_augment(self, mock_client, executor, event_loop):
         from time import time, sleep
         
         def stub_generator():
+            print("Getting client")
             client = yield
+            print("Got client")
 
             while True:
+                print("Waiting for event")
                 event = yield
+                print("Got event")
+                ts = time()
+                print("Doing Long sleep")
                 sleep(10)
+                te = time()
+                print("Done sleeping: {0}".format(te - ts))
 
         processor.register_augment(mock_client, "test", stub_generator(), None)
         ts = time()
         mock_client.event(service="test")
-        await mock_client.consume_augments()
+        print("Consuming augments")
+        (done, pending) = await mock_client.consume_augments(
+                executor,
+                timeout=1
+        )
         te = time()
         td = te - ts
         assert len(mock_client.events) == 1
+        assert len(done) == 0
+        assert len(pending) == 1
         assert td < 0.1

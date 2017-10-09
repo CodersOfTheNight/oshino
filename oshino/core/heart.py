@@ -5,6 +5,7 @@ import logbook
 from time import time
 from typing import TypeVar, Generic
 from asyncio import BaseEventLoop
+from concurrent.futures import ThreadPoolExecutor
 
 from logbook import Logger, StreamHandler
 from raven.handlers.logbook import SentryHandler
@@ -86,6 +87,7 @@ async def main_loop(cfg: Config,
     transport = transport_cls(riemann.host, riemann.port)
     client = processor.QClient(transport)
     agents = create_agents(cfg.agents)
+    executor = ThreadPoolExecutor(max_workers=cfg.executors_count)
 
     init(agents)
 
@@ -105,7 +107,7 @@ async def main_loop(cfg: Config,
                         len(client.queue.events),
                         len(pending))
 
-        await processor.flush(client, transport, logger)
+        await processor.flush(client, transport, executor, logger)
         if continue_fn():
             await asyncio.sleep(cfg.interval - int(td), loop=loop)
         else:

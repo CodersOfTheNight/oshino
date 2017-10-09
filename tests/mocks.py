@@ -1,3 +1,5 @@
+from copy import copy
+
 from riemann_client.transport import BlankTransport
 
 from oshino.core.processor import AugmentFixture
@@ -11,7 +13,7 @@ class MockClient(AugmentFixture):
         self.tasks = []
 
     def event(self, **kwargs):
-        self.tasks.append(self.apply_augment(**kwargs))
+        self.tasks.append(self.apply_augment(copy(kwargs)))
         self.events.append(kwargs)
 
     def flush(self):
