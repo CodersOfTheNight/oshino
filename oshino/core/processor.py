@@ -1,4 +1,5 @@
 import asyncio
+import threading
 
 from copy import copy
 
@@ -14,7 +15,7 @@ logger = Logger("Processor")
 class AugmentFixture(object):
 
     def apply_augment(self, data):
-        async def process_async(executor):
+        def process_async():
             if "service" not in data:
                 return []
 
@@ -25,18 +26,28 @@ class AugmentFixture(object):
             if key in self.augments:
                 subscribers = self.augments[key]
 
-                def blocking():
-                    for sub in subscribers:
-                        sub.send(data)
+                def execute_in_thread(sub):
+                    def wrapped():
+                        print("Premature?")
+                        return sub.send(data)
+                    print("Registering in executor")
+                    return loop.run_in_executor(None, wrapped)
 
-                blocking_tasks.append(
-                        loop.run_in_executor(executor, blocking)
-                )
+                tasks = [execute_in_thread(sub)
+                         for sub in subscribers]
+
+                blocking_tasks += tasks
+
+            print("Giving away blocking tasks")
             return blocking_tasks
         return process_async
 
-    async def consume_augments(self, executor, timeout=0.5):
-        futures = [t(executor) for t in self.tasks]
+    async def consume_augments(self, timeout=0.5):
+        futures = [fut
+                   for t in self.tasks
+                   for fut in t()]
+
+        print("Futures: {0}".format(futures))
 
         if len(futures) > 0:
             return await asyncio.wait(futures, timeout=timeout)
@@ -53,7 +64,7 @@ class QClient(QueuedClient, AugmentFixture):
         super(QClient, self).event(**data)
 
 
-async def flush(client, transport, executor, logger):
+async def flush(client, transport, logger):
     future = asyncio.Future()
 
     async def process_async(future):
@@ -68,7 +79,7 @@ async def flush(client, transport, executor, logger):
 
             future.set_result(False)
 
-    await client.consume_augments(executor)
+    await client.consume_augments()
     asyncio.ensure_future(process_async(future))
     await future
     return future.result()
