@@ -28,9 +28,8 @@ class AugmentFixture(object):
 
                 def execute_in_thread(sub):
                     def wrapped():
-                        print("Premature?")
                         return sub.send(data)
-                    print("Registering in executor")
+                    logger.debug("Registering in executor")
                     return loop.run_in_executor(None, wrapped)
 
                 tasks = [execute_in_thread(sub)
@@ -38,7 +37,7 @@ class AugmentFixture(object):
 
                 blocking_tasks += tasks
 
-            print("Giving away blocking tasks")
+            logger.debug("Giving away blocking tasks")
             return blocking_tasks
         return process_async
 
@@ -47,7 +46,7 @@ class AugmentFixture(object):
                    for t in self.tasks
                    for fut in t()]
 
-        print("Futures: {0}".format(futures))
+        logger.debug("Futures to be consumed: {0}".format(futures))
 
         if len(futures) > 0:
             return await asyncio.wait(futures, timeout=timeout)
@@ -85,11 +84,17 @@ async def flush(client, transport, logger):
     return future.result()
 
 
-def register_augment(client, key, generator, logger):
+def register_augment(client, key, augment_fn, logger):
     if key not in client.augments:
         client.augments[key] = []
 
-    next(generator)
+    def generator():
+        while True:
+            logger.debug("Waiting for event for {0}".format(augment_fn))
+            event = yield
 
-    generator.send(client)
-    client.augments[key].append(generator)
+    g = generator()
+    next(g)
+    augment_fn(client, g)
+
+    client.augments[key].append(g)
