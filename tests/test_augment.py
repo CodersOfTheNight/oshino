@@ -18,7 +18,7 @@ class TestAugment(object):
 
             print("Waiting for events")
             for event in g:
-                print("Got event")
+                print("Got event: {0}".format(event))
                 events_received += 1
 
         processor.register_augment(mock_client, "test", stub_augment, logger)
@@ -26,7 +26,6 @@ class TestAugment(object):
         mock_client.event(service="test")
         mock_client.event(service="test")
 
-        await mock_client.consume_augments()
         assert events_received == 3
 
     @mark.asyncio
@@ -46,7 +45,6 @@ class TestAugment(object):
         for i in range(0, 10):
             mock_client.event(service="test", metric=i*10)
 
-        await mock_client.consume_augments()
 
         # 10 events pushed, every 3 extra event added (10/3 = 3)
         assert len(mock_client.events) == 13
@@ -74,10 +72,6 @@ class TestAugment(object):
         processor.register_augment(mock_client, "test", stub_augment, logger)
         ts = time()
         mock_client.event(service="test")
-        print("Consuming augments")
-        (done, pending) = await mock_client.consume_augments(
-                timeout=0.1
-        )
         te = time()
         td = te - ts
         assert len(mock_client.events) == 1

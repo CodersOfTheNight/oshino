@@ -7,8 +7,10 @@ from .mocks import MockClient, MockTransport
 
 
 @fixture
-def mock_client():
-    return MockClient()
+def mock_client(request):
+    client = MockClient()
+    request.addfinalizer(client.on_stop)
+    return client
 
 
 @fixture
