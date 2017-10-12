@@ -2,7 +2,7 @@ from pytest import mark, fixture
 from logbook import Logger
 
 from oshino.core import processor
-from .fixtures import mock_transport, mock_client, broken_transport
+from .fixtures import (mock_transport, mock_client, broken_transport, executor)
 
 logger = Logger(__name__)
 
@@ -10,7 +10,7 @@ logger = Logger(__name__)
 class TestAugment(object):
     
     @mark.asyncio
-    async def test_simple_augment(self, mock_client, event_loop):
+    async def test_simple_augment(self, mock_client, executor, event_loop):
         events_received = 0
         
         def stub_augment(client, g):
@@ -25,6 +25,8 @@ class TestAugment(object):
         mock_client.event(service="test")
         mock_client.event(service="test")
         mock_client.event(service="test")
+
+        mock_client.on_stop()
 
         assert events_received == 3
 
@@ -46,8 +48,12 @@ class TestAugment(object):
             mock_client.event(service="test", metric=i*10)
 
 
+        mock_client.on_stop()
+
         # 10 events pushed, every 3 extra event added (10/3 = 3)
         assert len(mock_client.events) == 13
+
+        print(mock_client.events)
 
         filtered = list(filter(lambda x: x["service"] == "accumulated",
                                mock_client.events))
@@ -74,9 +80,9 @@ class TestAugment(object):
         mock_client.event(service="test")
         te = time()
         td = te - ts
+
+        mock_client.on_stop()
         assert len(mock_client.events) == 1
-        assert len(done) == 0
-        assert len(pending) == 1
         assert td < 0.5
 
 
@@ -91,5 +97,7 @@ class TestAugment(object):
 
         processor.register_augment(mock_client, "test", stub_augment, logger)
         mock_client.event(service="test", metric=1.0)
+
+        mock_client.on_stop()
 
         assert events_received == 0

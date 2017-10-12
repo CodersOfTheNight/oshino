@@ -1,3 +1,5 @@
+import asyncio
+
 from concurrent.futures import ThreadPoolExecutor
 
 from pytest import fixture
@@ -23,5 +25,15 @@ def broken_transport():
     return MockTransport(broken=True)
 
 @fixture(scope="session")
-def executor():
-    return ThreadPoolExecutor(max_workers=3)
+def executor(request):
+    loop = asyncio.get_event_loop()
+    print("Loop: {0}".format(loop))
+    ex = ThreadPoolExecutor(max_workers=3)
+    def on_stop():
+        ex.shutdown(wait=True)
+        loop.close()
+        print("done closing")
+
+    loop.set_default_executor(ex)
+    request.addfinalizer(on_stop)
+    return ex

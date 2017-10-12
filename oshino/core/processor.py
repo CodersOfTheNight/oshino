@@ -2,6 +2,7 @@ import asyncio
 import threading
 
 from copy import copy
+from time import sleep
 
 from logbook import Logger
 from concurrent.futures import ThreadPoolExecutor
@@ -20,7 +21,7 @@ class StopEvent(object):
 class AugmentFixture(object):
 
     def apply_augment(self, data):
-        if "service" not in data:
+        if "service" not in data or hasattr(self, "stopped"):
             return
 
         key = data["service"]
@@ -29,10 +30,21 @@ class AugmentFixture(object):
             sub.put_nowait(data)
 
     def on_stop(self):
+        if hasattr(self, "stopped"):
+            return
+
         logger.info("Stopping all augments")
+
+        self.stopped = True
         for _, subscribers in self.augments.items():
             for sub in subscribers:
+                print("Putting Stop to it")
                 sub.put_nowait(StopEvent())
+
+        for _, subscribers in self.augments.items():
+            for sub in subscribers:
+                while not sub.empty():
+                    sleep(0.1)
 
 
 class QClient(QueuedClient, AugmentFixture):
@@ -73,12 +85,16 @@ def register_augment(client, key, augment_fn, logger):
     loop = asyncio.get_event_loop()
 
     def generator(q):
-        while True:
+        stopped = False
+        while not (stopped and q.empty()):
             logger.debug("Waiting for event for {0}".format(augment_fn))
-            event = q.get()
+            event = q.get(block=not stopped)
             if isinstance(event, StopEvent):
-                break
+                logger.debug("Stopping event generator")
+                stopped = True
+                continue
             yield event
+        raise StopIteration
 
     q = Queue()
     g = generator(q)
