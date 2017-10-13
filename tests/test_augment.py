@@ -35,12 +35,16 @@ class TestAugment(object):
         def stub_augment(client, g):
             acc = 0
 
-            for event in g:
-                for i in range(0, 3):
-                    print("Got event")
-                    acc += event["metric"]
-                client.event(service="accumulated", metric=acc)
-                acc = 0
+            while True:
+                try:
+                    for i in range(0, 3):
+                        event = next(g)
+                        print("Got event")
+                        acc += event["metric"]
+                    client.event(service="accumulated", metric=acc)
+                    acc = 0
+                except StopIteration:
+                    break
 
         processor.register_augment(mock_client, "test", stub_augment, logger)
 
@@ -50,10 +54,11 @@ class TestAugment(object):
 
         mock_client.on_stop()
 
+        print(mock_client.events)
+
         # 10 events pushed, every 3 extra event added (10/3 = 3)
         assert len(mock_client.events) == 13
 
-        print(mock_client.events)
 
         filtered = list(filter(lambda x: x["service"] == "accumulated",
                                mock_client.events))
