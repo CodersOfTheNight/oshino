@@ -1,11 +1,9 @@
 import asyncio
-import threading
 
 from copy import copy
 from time import sleep
 
 from logbook import Logger
-from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 
 from riemann_client.client import QueuedClient
@@ -100,6 +98,7 @@ def register_augment(client, key, augment_fn, logger):
 
     q = Queue()
     g = generator(q)
+
     def execute_in_thread(fn, client, g):
         fn(client, g)
 

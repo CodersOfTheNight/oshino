@@ -5,7 +5,6 @@ import logbook
 from time import time
 from typing import TypeVar, Generic
 from asyncio import BaseEventLoop
-from concurrent.futures import ThreadPoolExecutor
 
 from logbook import Logger, StreamHandler
 from raven.handlers.logbook import SentryHandler
