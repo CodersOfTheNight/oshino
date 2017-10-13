@@ -56,3 +56,7 @@ Documentation about additional agents can be found [here](docs/thirdparty.md)
 More documentation
 ==================
 More documentation can be found under [docs](docs/index.md) directory
+
+Contributing
+============
+Refer to [CONTRIBUTING.md](CONTRIBUTING.md)

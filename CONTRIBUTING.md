@@ -5,10 +5,10 @@ What is agent? It is basically a metrics collector for specific service,
 eg. `oshino-redis` is an agent which runs `info` command as a Redis client,
 parses received metrics and gives them to `oshino` as events.
 
-To make life easier, there's a `cookiecutter` template (oshino-cookiecutter)[https://github.com/CodersOfTheNight/oshino-cookiecutter]
+To make life easier, there's a `cookiecutter` template [oshino-cookiecutter](https://github.com/CodersOfTheNight/oshino-cookiecutter)
 which generates all boilerplate code, you just need to modify it.
 
-Already existing custom agents are mostly listed here: (Third party Agents)[https://github.com/CodersOfTheNight/oshino/blob/master/docs/thirdparty.md]
+Already existing custom agents are mostly listed here: [Third party Agents](https://github.com/CodersOfTheNight/oshino/blob/master/docs/thirdparty.md)
 
 Contributing to the Core
 ========================
