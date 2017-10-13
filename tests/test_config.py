@@ -1,6 +1,8 @@
 import mock
 import logbook
 
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
 from pytest import fixture
 
 from riemann_client.transport import TCPTransport
@@ -57,6 +59,15 @@ class TestBase(object):
     def test_loading_config(self):
         cfg = load("tests/data/test_config.yml")
         assert isinstance(cfg, Config)
+
+    def test_default_executor_class(self, base_config):
+        obj = base_config.executor_class()
+        assert isinstance(obj, ThreadPoolExecutor)
+
+    def test_custom_executor_class(self):
+        cfg = load("tests/data/test_config.yml")
+        obj = cfg.executor_class()
+        assert isinstance(obj, ProcessPoolExecutor)
 
 
 class TestRiemann(object):

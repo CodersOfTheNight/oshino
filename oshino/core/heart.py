@@ -86,6 +86,8 @@ async def main_loop(cfg: Config,
     transport = transport_cls(riemann.host, riemann.port)
     client = processor.QClient(transport)
     agents = create_agents(cfg.agents)
+    executor = cfg.executor_class(max_workers=cfg.executors_count)
+    loop.set_default_executor(executor)
 
     init(agents)
 
@@ -105,7 +107,7 @@ async def main_loop(cfg: Config,
                         len(client.queue.events),
                         len(pending))
 
-        processor.flush(client, transport, logger)
+        await processor.flush(client, transport, logger)
         if continue_fn():
             await asyncio.sleep(cfg.interval - int(td), loop=loop)
         else:

@@ -111,6 +111,18 @@ class Config(ConfigBase):
     def sentry_dsn(self):
         return self._data.get("sentry-dsn", None)
 
+    @property
+    def executors_count(self):
+        return self._data.get("executors-count", 10)
+
+    @property
+    def executor_class(self):
+        raw = self._data.get(
+                "executor",
+                "concurrent.futures.ThreadPoolExecutor"
+        )
+        return dynamic_import(raw)
+
 
 def load(config_file):
     """

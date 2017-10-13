@@ -1,6 +1,7 @@
 ---
 interval: 10
 loglevel: DEBUG
+executor: concurrent.futures.ProcessPoolExecutor
 riemann:
   host: localhost
   port: 5555
