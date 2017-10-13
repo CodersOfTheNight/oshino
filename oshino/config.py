@@ -72,6 +72,16 @@ class AgentConfig(ConfigBase):
         return self.instance.is_valid()
 
 
+class AugmentConfig(ConfigBase):
+
+    """
+    Config for setuping augment
+    """
+
+    def __init__(self, cfg):
+        self._data = cfg
+
+
 class Config(ConfigBase):
 
     """
@@ -106,6 +116,10 @@ class Config(ConfigBase):
     @property
     def agents(self):
         return [AgentConfig(a) for a in self._data.get("agents", [])]
+
+    @property
+    def augments(self):
+        return [AugmentConfig(a) for a in self._data.get("augments", [])]
 
     @property
     def sentry_dsn(self):
