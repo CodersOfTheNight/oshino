@@ -25,6 +25,9 @@ class AugmentFixture(object):
             return
 
         key = data["service"]
+        if key not in self.augments:
+            return
+
         subscribers = self.augments[key]
         for sub in subscribers:
             sub.put_nowait(data)
@@ -38,7 +41,6 @@ class AugmentFixture(object):
         self.stopped = True
         for _, subscribers in self.augments.items():
             for sub in subscribers:
-                print("Putting Stop to it")
                 sub.put_nowait(StopEvent())
 
         for _, subscribers in self.augments.items():

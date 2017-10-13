@@ -68,6 +68,7 @@ class TestAugment(object):
         assert sum([event["metric"] for event in filtered]) == 360
 
     @mark.asyncio
+    @mark.slow
     async def test_lagging_augment(self, mock_client, event_loop):
         from time import time, sleep
         
@@ -86,23 +87,5 @@ class TestAugment(object):
         te = time()
         td = te - ts
 
-        mock_client.on_stop()
         assert len(mock_client.events) == 1
         assert td < 0.5
-
-
-    @mark.asyncio
-    async def test_no_premature_exec(self, mock_client, event_loop):
-        events_received = 0
-        def stub_augment(client, g):
-            nonlocal events_received
-
-            for event in g:
-                events_received += 1
-
-        processor.register_augment(mock_client, "test", stub_augment, logger)
-        mock_client.event(service="test", metric=1.0)
-
-        mock_client.on_stop()
-
-        assert events_received == 0
