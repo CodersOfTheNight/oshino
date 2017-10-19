@@ -11,3 +11,9 @@ agents:
     module: oshino.agents.subprocess_agent.SubprocessAgent
     script: "echo 'Hello world!'"
     tag: "bash"
+augments:
+  - name: moving average
+    key: cpu 
+    module: oshino.augments.stats.MovingAverage
+    step: 5
+    tag: "mse"
