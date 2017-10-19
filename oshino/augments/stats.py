@@ -1,6 +1,6 @@
 from collections import deque
 
-from . import AugmentBase, consume
+from . import AugmentBase
 
 
 class SimpleMovingAverage(AugmentBase):
