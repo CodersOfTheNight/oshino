@@ -21,7 +21,7 @@ class MovingAverage(AugmentBase):
                 for event in g:
                     self.q.put(event)
 
-            data = list(map(lambda x: x.metric, consume(self.q)))
+            data = list(map(lambda x: x.metric_f, consume(self.q)))
             output = sum(data) / len(data)
 
             self.send_event(service=self.prefix,
