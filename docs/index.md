@@ -6,5 +6,6 @@ Table of Contents:
     - [Events](events.md)
     - [Config](config.md)
 - Extending
-    - [Third Party Agents](thirdparty.md)
+    - [Agents](agents.md)
     - [Augments](augments.md)
+    - [Third Party Agents](thirdparty.md)
