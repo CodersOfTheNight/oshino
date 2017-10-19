@@ -7,4 +7,21 @@ How to use them?
 ----------------
 You need to include specific augment inside config under augments array, very similar to [Agents](agents.md).
 
+An example config could look like this:
+```yaml
+---
+interval: 10
+loglevel: DEBUG
+riemann:
+  host: localhost
+  port: 5555
+  transport: BlankTransport
+augments:
+  - name: moving average
+    key: cpu 
+    module: oshino.augments.stats.MovingAverage
+    step: 5
+    tag: "mse"
+```
 
+More configuration info can be found under [Config](config.md)

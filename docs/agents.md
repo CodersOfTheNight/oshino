@@ -24,6 +24,8 @@ agents:
     tag: "bash"
 ```
 
+More configuration info can be found under [Config](config.md)
+
 As you can see, there's one agent in agents array, which is called `echo`
 and uses internal `SubprocessAgent` class. 
 This type of agent is able to execute command in command line
