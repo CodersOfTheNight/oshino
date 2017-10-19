@@ -94,7 +94,7 @@ async def main_loop(cfg: Config,
     transport = transport_cls(riemann.host, riemann.port)
     client = processor.QClient(transport)
     agents = create_agents(cfg.agents)
-    register_augments(cfg.augments)
+    register_augments(client, cfg.augments, logger)
     executor = cfg.executor_class(max_workers=cfg.executors_count)
     loop.set_default_executor(executor)
 
