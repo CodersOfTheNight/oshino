@@ -1,5 +1,6 @@
 Table of Contents:
 ==================
+- [Quickstart](quickstart.md)
 - [Installiation](install.md)
 - [Riemann](riemann.md)
 - Usage
