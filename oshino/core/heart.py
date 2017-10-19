@@ -35,6 +35,14 @@ def create_agents(agents_cfg: list):
     return list(map(lambda x: (x.instance, x), agents_cfg))
 
 
+def register_augments(client: processor.QClient,
+                      augments_cfg: list,
+                      logger: Logger):
+    for augment in augments_cfg:
+        inst = augment.instance
+        processor.register_augment(client, augment.key, inst.activate, logger)
+
+
 def init(agents: list):
     for agent, _ in agents:
         agent.on_start()
@@ -86,6 +94,7 @@ async def main_loop(cfg: Config,
     transport = transport_cls(riemann.host, riemann.port)
     client = processor.QClient(transport)
     agents = create_agents(cfg.agents)
+    register_augments(cfg.augments)
     executor = cfg.executor_class(max_workers=cfg.executors_count)
     loop.set_default_executor(executor)
 

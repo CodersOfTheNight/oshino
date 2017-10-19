@@ -17,6 +17,24 @@ class ConfigBase(object):
         return True
 
 
+class InstanceMixin(object):
+    """
+    Mixin used for configs which are loaded dynamically
+    """
+    @property
+    def module(self):
+        return self._data["module"]
+
+    @property
+    def instance(self):
+        if self._instance is None:
+            self._instance = dynamic_import(self.module)(self._data)
+        return self._instance
+
+    def is_valid(self):
+        return self.instance.is_valid()
+
+
 class RiemannConfig(ConfigBase):
 
     """
@@ -44,7 +62,7 @@ class RiemannConfig(ConfigBase):
         return getattr(riemann_client.transport, raw)
 
 
-class AgentConfig(ConfigBase):
+class AgentConfig(ConfigBase, InstanceMixin):
 
     """
     Config for setuping agent
@@ -55,24 +73,11 @@ class AgentConfig(ConfigBase):
         self._instance = None
 
     @property
-    def module(self):
-        return self._data["module"]
-
-    @property
-    def instance(self):
-        if self._instance is None:
-            self._instance = dynamic_import(self.module)(self._data)
-        return self._instance
-
-    @property
     def tag(self):
         return self._data.get("tag", None)
 
-    def is_valid(self):
-        return self.instance.is_valid()
 
-
-class AugmentConfig(ConfigBase):
+class AugmentConfig(ConfigBase, InstanceMixin):
 
     """
     Config for setuping augment
@@ -80,6 +85,11 @@ class AugmentConfig(ConfigBase):
 
     def __init__(self, cfg):
         self._data = cfg
+        self._instance = None
+
+    @property
+    def tag(self):
+        return self._data.get("tag", None)
 
 
 class Config(ConfigBase):
