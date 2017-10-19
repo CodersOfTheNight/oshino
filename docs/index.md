@@ -7,3 +7,4 @@ Table of Contents:
     - [Config](config.md)
 - Extending
     - [Third Party Agents](thirdparty.md)
+    - [Augments](augments.md)

@@ -8,6 +8,8 @@ Base Config
 - `sentry-dsn` - sentry address for error reporting (default: `None`)
 - `executor` - allows to define executor class, default one is `concurrent.futures.ThreadPoolExecutor`
 - `executors-count` - set worker count for executor, default: 10
+- `agents` - an array of agent configs used in this setup
+- `augments` - an array of augment configs used in this setup
 
 General Config for Agents
 ------------------------
