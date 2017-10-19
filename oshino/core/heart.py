@@ -123,6 +123,8 @@ async def main_loop(cfg: Config,
             logger.info("Stopping Oshino")
             break
 
+    client.on_stop()
+
 
 def start_loop(cfg: Config):
     handlers = []
