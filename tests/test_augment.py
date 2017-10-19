@@ -108,4 +108,11 @@ class TestStatsAugments(object):
             mock_client.event(service=moving_avg.key, metric_f=i**2)
 
         mock_client.on_stop()
-        assert len(mock_client.events) == 12
+        assert len(mock_client.events) == 16
+
+        print(mock_client.events)
+
+        filtered = filter(lambda x: x["service"] == "test_moving_avg.value",
+                          mock_client.events)
+
+        assert len(list(filtered)) == 7

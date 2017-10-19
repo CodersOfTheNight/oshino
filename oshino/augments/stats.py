@@ -1,13 +1,13 @@
-from queue import Queue
+from collections import deque
 
 from . import AugmentBase, consume
 
 
-class MovingAverage(AugmentBase):
+class SimpleMovingAverage(AugmentBase):
 
     def __init__(self, *args, **kwargs):
-        super(MovingAverage, self).__init__(*args, **kwargs)
-        self.q = Queue()
+        super(SimpleMovingAverage, self).__init__(*args, **kwargs)
+        self.dq = deque(maxlen=self.step)
 
     @property
     def step(self):
@@ -18,19 +18,19 @@ class MovingAverage(AugmentBase):
 
         stopped = False
         while not stopped:
-            for i in range(0, step):
-                try:
-                    event = next(g)
-                    self.q.put(event)
-                except StopIteration:
-                    stopped = True
-                    break
 
-            data = list(map(lambda x: x["metric_f"], consume(self.q)))
-            if len(data) > 0:
+            try:
+                event = next(g)
+                self.dq.append(event)
+            except StopIteration:
+                stopped = True
+                break
+
+            data = list(map(lambda x: x["metric_f"], list(self.dq)))
+            if len(data) == step:
                 output = sum(data) / len(data)
 
                 self.send_event(client,
-                                service=self.prefix,
+                                service=self.prefix + "value",
                                 metric_f=output,
                                 state="ok")

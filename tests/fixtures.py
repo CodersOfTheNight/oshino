@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pytest import fixture
 
 from .mocks import MockClient, MockTransport
-from oshino.augments.stats import MovingAverage
+from oshino.augments.stats import SimpleMovingAverage
 
 
 @fixture
@@ -49,7 +49,7 @@ def executor(request):
 
 @fixture
 def moving_avg():
-    return MovingAverage({
+    return SimpleMovingAverage({
             "name": "test_moving_avg",
             "key": "test",
             "step": 3

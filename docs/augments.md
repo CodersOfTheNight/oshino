@@ -19,9 +19,9 @@ riemann:
 augments:
   - name: moving average
     key: cpu 
-    module: oshino.augments.stats.MovingAverage
+    module: oshino.augments.stats.SimpleMovingAverage
     step: 5
-    tag: "mse"
+    tag: "sma"
 ```
 
 More configuration info can be found under [Config](config.md)
