@@ -91,6 +91,10 @@ class AugmentConfig(ConfigBase, InstanceMixin):
     def tag(self):
         return self._data.get("tag", None)
 
+    @property
+    def key(self):
+        return self._data["key"]
+
 
 class Config(ConfigBase):
 
