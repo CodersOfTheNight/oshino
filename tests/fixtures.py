@@ -1,11 +1,19 @@
+import sys
 import asyncio
+
+import logbook
 
 from concurrent.futures import ThreadPoolExecutor
 
 from pytest import fixture
 
 from .mocks import MockClient, MockTransport
+from oshino.augments.stats import MovingAverage
 
+
+@fixture
+def debug():
+    logbook.StreamHandler(sys.stdout, level=logbook.DEBUG).push_application()
 
 
 @fixture
@@ -37,3 +45,12 @@ def executor(request):
     loop.set_default_executor(ex)
     request.addfinalizer(on_stop)
     return ex
+
+
+@fixture
+def moving_avg():
+    return MovingAverage({
+            "name": "test_moving_avg",
+            "key": "test",
+            "step": 3
+        })

@@ -7,6 +7,22 @@ class AugmentBase(object):
     def activate(self, client, g):
         pass
 
+    @property
+    def name(self):
+        return self._data["name"].lower().replace(" ", "-")
+
+    @property
+    def prefix(self):
+        return "{0}.".format(self.name)
+
+    @property
+    def key(self):
+        return self._data["key"]
+
+    @property
+    def tag(self):
+        return self._data.get("tag", None)
+
     def send_event(self, client, **kwargs):
         tags = [self.tag] if self.tag else []
         if "tags" in kwargs:

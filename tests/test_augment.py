@@ -1,18 +1,21 @@
-from pytest import mark, fixture
+from pytest import mark
 from logbook import Logger
 
 from oshino.core import processor
-from .fixtures import (mock_transport, mock_client, broken_transport, executor)
+from .fixtures import (mock_client,
+                       broken_transport,
+                       executor,
+                       moving_avg)
 
 logger = Logger(__name__)
 
 
 class TestAugment(object):
-    
+
     @mark.asyncio
     async def test_simple_augment(self, mock_client, executor, event_loop):
         events_received = 0
-        
+     
         def stub_augment(client, g):
             nonlocal events_received
 
@@ -89,3 +92,20 @@ class TestAugment(object):
 
         assert len(mock_client.events) == 1
         assert td < 0.5
+
+
+class TestStatsAugments(object):
+
+    @mark.asyncio
+    async def test_moving_average(self, mock_client, moving_avg, event_loop):
+        processor.register_augment(mock_client,
+                                   moving_avg.key,
+                                   moving_avg.activate,
+                                   logger)
+
+        print("Key: {0}".format(moving_avg.key))
+        for i in range(9):
+            mock_client.event(service=moving_avg.key, metric_f=i**2)
+
+        mock_client.on_stop()
+        assert len(mock_client.events) == 12

@@ -11,19 +11,26 @@ class MovingAverage(AugmentBase):
 
     @property
     def step(self):
-        self._data.get("step", 5)
+        return self._data.get("step", 5)
 
     def activate(self, client, g):
         step = self.step
 
-        while True:
+        stopped = False
+        while not stopped:
             for i in range(0, step):
-                for event in g:
+                try:
+                    event = next(g)
                     self.q.put(event)
+                except StopIteration:
+                    stopped = True
+                    break
 
-            data = list(map(lambda x: x.metric_f, consume(self.q)))
-            output = sum(data) / len(data)
+            data = list(map(lambda x: x["metric_f"], consume(self.q)))
+            if len(data) > 0:
+                output = sum(data) / len(data)
 
-            self.send_event(service=self.prefix,
-                            metric_f=output,
-                            state="ok")
+                self.send_event(client,
+                                service=self.prefix,
+                                metric_f=output,
+                                state="ok")
