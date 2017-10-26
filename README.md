@@ -26,6 +26,11 @@ How to install
 ==============
 `pip install oshino`
 
+Quickstart
+==========
+It is highly recommended for new users to use [Quickstart Guide](quickstart.md)
+
+
 Riemann. What? Why? How?
 =========================
 Riemann is a backbone of this system. It does alerting, it receives metrics, it aggregates metrics and it decides where to send them (eg.: Graphite, Logstash).
@@ -56,3 +61,7 @@ Documentation about additional agents can be found [here](docs/thirdparty.md)
 More documentation
 ==================
 More documentation can be found under [docs](docs/index.md) directory
+
+Contributing
+============
+Refer to [CONTRIBUTING.md](CONTRIBUTING.md)

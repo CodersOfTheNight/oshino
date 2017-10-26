@@ -10,6 +10,3 @@ Known agents:
 - [oshino-hw](https://github.com/CodersOfTheNight/oshino-hw)
 - [oshino-prometheus](https://github.com/CodersOfTheNight/oshino-prometheus)
 
-Creating custom Agent
----------------------
-It can be done by using our [Cookiecutter Template](https://github.com/CodersOfTheNight/oshino-cookiecutter)

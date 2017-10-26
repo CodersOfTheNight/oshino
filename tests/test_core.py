@@ -1,17 +1,19 @@
 import logging
 import asyncio
 
+from time import time
+
 from pytest import mark, fixture
 from oshino.core import send_heartbeat, send_timedelta, send_metrics_count
 from oshino.config import AgentConfig, Config
 from oshino.core.heart import (step,
                                instrumentation,
-                               flush_riemann,
                                create_agents,
                                init,
                                forever,
                                create_loop)
-from oshino.agents.test_agent import StubAgent
+from oshino.core import processor
+from oshino.agents.test_agent import StubAgent, LaggingAgent
 from .fixtures import mock_transport, mock_client, broken_transport
 
 logger = logging.getLogger(__name__)
@@ -21,13 +23,18 @@ logger = logging.getLogger(__name__)
 def stub_agent():
     return StubAgent({}), AgentConfig({})
 
+@fixture
+def lagging_agent():
+    return LaggingAgent({}, 2), AgentConfig({})
+
 
 @fixture
 def base_config():
     return Config({"agents": [{"name": "test-agent",
                                "module": "oshino.agents.test_agent.StubAgent",
                                }
-                              ]
+                              ],
+                    "interval": 1
                    })
 
 
@@ -81,28 +88,37 @@ class TestHeart(object):
 
     @mark.asyncio
     async def test_step(self, stub_agent, mock_client, event_loop):
-        await step(mock_client, [stub_agent], loop=event_loop)
+        await step(mock_client, [stub_agent], loop=event_loop, timeout=1)
         assert len(mock_client.events) == 1
 
     def test_instrumentation(self, mock_client):
-        instrumentation(mock_client, logger, 0, 0, 0)
-        assert len(mock_client.events) == 3
+        instrumentation(mock_client, logger, 0, 0, 0, 0)
+        assert len(mock_client.events) == 4
 
-    def test_flush(self, mock_client, mock_transport):
+    @mark.asyncio
+    async def test_flush(self,
+                         mock_client,
+                         mock_transport,
+                         event_loop):
         assert len(mock_client.events) == 0
         mock_client.event()
         assert len(mock_client.events) == 1
-        flush_riemann(mock_client, mock_transport, logger)
+        await processor.flush(mock_client, mock_transport, logger)
         assert len(mock_client.events) == 0
         assert not mock_transport.connected
 
-    def test_flush_w_error(self, mock_client, broken_transport):
-        flush_riemann(mock_client, broken_transport, logger)
+    @mark.asyncio
+    async def test_flush_w_error(self,
+                                 mock_client,
+                                 broken_transport,
+                                 event_loop):
+        await processor.flush(mock_client, broken_transport, logger)
 
     def test_agents_creation(self, base_config):
         result = create_agents(base_config.agents)
         assert len(result) == 1
         agent, cfg = result[0]
+        assert agent.is_valid()
         assert isinstance(agent, StubAgent)
         assert isinstance(cfg, AgentConfig)
 
@@ -114,3 +130,35 @@ class TestHeart(object):
 
     def test_event_loop_creation(self):
         assert isinstance(create_loop(), asyncio.BaseEventLoop)
+
+class TestRobustness(object):
+
+    @mark.slow
+    @mark.asyncio
+    async def test_w_lagging_agent(self,
+                                   stub_agent,
+                                   lagging_agent,
+                                   mock_client,
+                                   event_loop):
+        assert stub_agent[0].is_valid()
+        assert lagging_agent[0].is_valid()
+
+        ts = time()
+        (done, pending) = await step(
+                mock_client,
+                [stub_agent, lagging_agent],
+                timeout=1.5,
+                loop=event_loop
+        )
+        te = time()
+        td = te - ts
+
+        assert td < 1.6
+        assert len(mock_client.events) == 1
+        assert len(done) == 1
+        assert len(pending) == 1
+
+        # Wait for our slow guy to finish
+        for p in pending:
+            await p
+
