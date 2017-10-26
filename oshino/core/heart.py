@@ -9,6 +9,7 @@ from asyncio import BaseEventLoop
 from logbook import Logger, StreamHandler
 from raven.handlers.logbook import SentryHandler
 from raven import Client as SentryClient
+from raven.exceptions import InvalidDsn
 from logbook import NestedSetup
 
 from ..config import Config
@@ -139,10 +140,14 @@ def start_loop(cfg: Config):
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
                 .format(cfg.interval))
     if cfg.sentry_dsn:
-        client = SentryClient(cfg.sentry_dsn)
-        handlers.append(SentryHandler(client,
-                                      level=logbook.ERROR,
-                                      bubble=True))
+        try:
+            client = SentryClient(cfg.sentry_dsn)
+            handlers.append(SentryHandler(client,
+                                          level=logbook.ERROR,
+                                          bubble=True))
+        except InvalidDsn:
+            logger.warn("Invalid Sentry DSN '{0}' providen. Skipping"
+                        .format(cfg.sentry_dsn))
 
     setup = NestedSetup(handlers)
     setup.push_application()
