@@ -60,7 +60,7 @@ async def step(client: object,
     tasks = []
 
     for agent, agent_cfg in agents:
-        tags = [agent_cfg.tag] if agent_cfg.tag else []
+        tags = agent_cfg.tags
 
         def event_fn(**kwargs):
             if "tags" in kwargs:

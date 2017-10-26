@@ -35,6 +35,22 @@ class InstanceMixin(object):
         return self.instance.is_valid()
 
 
+class TagMixin(object):
+    """
+    Mixin used for adding tag functionallity to configs
+    """
+
+    @property
+    def tag(self):
+        return self._data.get("tag", None)
+
+    @property
+    def tags(self):
+        return self._data.get("tags", []) + [self.tag] if self.tag else []
+
+
+
+
 class RiemannConfig(ConfigBase):
 
     """
@@ -62,7 +78,7 @@ class RiemannConfig(ConfigBase):
         return getattr(riemann_client.transport, raw)
 
 
-class AgentConfig(ConfigBase, InstanceMixin):
+class AgentConfig(ConfigBase, InstanceMixin, TagMixin):
 
     """
     Config for setuping agent
@@ -72,12 +88,8 @@ class AgentConfig(ConfigBase, InstanceMixin):
         self._data = cfg
         self._instance = None
 
-    @property
-    def tag(self):
-        return self._data.get("tag", None)
 
-
-class AugmentConfig(ConfigBase, InstanceMixin):
+class AugmentConfig(ConfigBase, InstanceMixin, TagMixin):
 
     """
     Config for setuping augment
@@ -86,10 +98,6 @@ class AugmentConfig(ConfigBase, InstanceMixin):
     def __init__(self, cfg):
         self._data = cfg
         self._instance = None
-
-    @property
-    def tag(self):
-        return self._data.get("tag", None)
 
     @property
     def key(self):
