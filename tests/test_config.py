@@ -9,23 +9,37 @@ from riemann_client.transport import TCPTransport
 
 from oshino.config import Config, RiemannConfig, load
 from oshino.agents.test_agent import StubAgent
+from oshino.augments.stats import SimpleMovingAverage
 from oshino import version
 from oshino import get_version
 
 
 @fixture
 def base_config():
-    return Config({"riemann": {"host": "localhost",
-                               "port": 5555
-                               },
-                   "interval": 5,
-                   "sentry-dsn": "http://test:test@sentry.io",
-                   "agents": [{"name": "test-agent",
-                               "module": "oshino.agents.test_agent.StubAgent",
-                               "tag": "test"
-                               }
-                              ]
-                   })
+    return Config({
+        "riemann": {
+            "host": "localhost",
+            "port": 5555
+        },
+        "interval": 5,
+        "sentry-dsn": "http://test:test@sentry.io",
+        "agents": [
+            {
+                "name": "test-agent",
+                "module": "oshino.agents.test_agent.StubAgent",
+                "tag": "test"
+            }
+        ],
+       "augments": [
+            {
+                "name": "moving average",
+                "key": "cpu",
+                "module": "oshino.augments.stats.SimpleMovingAverage",
+                "step": 5,
+                "tag": "sma"
+            }
+        ]
+    })
 
 
 @fixture
@@ -101,3 +115,20 @@ class TestAgents(object):
     def test_agent_tag(self, base_config):
         agents = base_config.agents
         assert agents[0].tag == "test"
+
+
+class TestAugments(object):
+    def test_config_is_valid(self, base_config):
+        augments = base_config.augments
+        assert all([augment.is_valid() for augment in augments])
+
+
+    def test_augment_loader(self, base_config):
+        augments = base_config.augments
+        assert len(augments) == 1
+        obj = augments[0].instance
+        assert isinstance(obj, SimpleMovingAverage)
+
+    def test_augment_tag(self, base_config):
+        augments = base_config.augments
+        assert augments[0].tag == "sma"

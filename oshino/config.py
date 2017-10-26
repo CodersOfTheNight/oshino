@@ -17,6 +17,38 @@ class ConfigBase(object):
         return True
 
 
+class InstanceMixin(object):
+    """
+    Mixin used for configs which are loaded dynamically
+    """
+    @property
+    def module(self):
+        return self._data["module"]
+
+    @property
+    def instance(self):
+        if self._instance is None:
+            self._instance = dynamic_import(self.module)(self._data)
+        return self._instance
+
+    def is_valid(self):
+        return self.instance.is_valid()
+
+
+class TagMixin(object):
+    """
+    Mixin used for adding tag functionallity to configs
+    """
+
+    @property
+    def tag(self):
+        return self._data.get("tag", None)
+
+    @property
+    def tags(self):
+        return self._data.get("tags", []) + [self.tag] if self.tag else []
+
+
 class RiemannConfig(ConfigBase):
 
     """
@@ -44,7 +76,7 @@ class RiemannConfig(ConfigBase):
         return getattr(riemann_client.transport, raw)
 
 
-class AgentConfig(ConfigBase):
+class AgentConfig(InstanceMixin, TagMixin):
 
     """
     Config for setuping agent
@@ -54,22 +86,20 @@ class AgentConfig(ConfigBase):
         self._data = cfg
         self._instance = None
 
-    @property
-    def module(self):
-        return self._data["module"]
+
+class AugmentConfig(InstanceMixin, TagMixin):
+
+    """
+    Config for setuping augment
+    """
+
+    def __init__(self, cfg):
+        self._data = cfg
+        self._instance = None
 
     @property
-    def instance(self):
-        if self._instance is None:
-            self._instance = dynamic_import(self.module)(self._data)
-        return self._instance
-
-    @property
-    def tag(self):
-        return self._data.get("tag", None)
-
-    def is_valid(self):
-        return self.instance.is_valid()
+    def key(self):
+        return self._data["key"]
 
 
 class Config(ConfigBase):
@@ -106,6 +136,10 @@ class Config(ConfigBase):
     @property
     def agents(self):
         return [AgentConfig(a) for a in self._data.get("agents", [])]
+
+    @property
+    def augments(self):
+        return [AugmentConfig(a) for a in self._data.get("augments", [])]
 
     @property
     def sentry_dsn(self):

@@ -2,6 +2,7 @@
 interval: 10
 loglevel: DEBUG
 executor: concurrent.futures.ProcessPoolExecutor
+sentry-dsn: "http://test:test@sentry.io"
 riemann:
   host: localhost
   port: 5555
@@ -11,3 +12,11 @@ agents:
     module: oshino.agents.subprocess_agent.SubprocessAgent
     script: "echo 'Hello world!'"
     tag: "bash"
+augments:
+  - name: moving average
+    key: cpu 
+    module: oshino.augments.stats.SimpleMovingAverage
+    step: 5
+    tag: "msa"
+  - name: failing augment
+    module: oshino.augments.InvalidAugment

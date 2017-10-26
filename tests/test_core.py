@@ -118,6 +118,7 @@ class TestHeart(object):
         result = create_agents(base_config.agents)
         assert len(result) == 1
         agent, cfg = result[0]
+        assert agent.is_valid()
         assert isinstance(agent, StubAgent)
         assert isinstance(cfg, AgentConfig)
 
@@ -139,6 +140,9 @@ class TestRobustness(object):
                                    lagging_agent,
                                    mock_client,
                                    event_loop):
+        assert stub_agent[0].is_valid()
+        assert lagging_agent[0].is_valid()
+
         ts = time()
         (done, pending) = await step(
                 mock_client,

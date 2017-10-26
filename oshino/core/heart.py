@@ -9,6 +9,7 @@ from asyncio import BaseEventLoop
 from logbook import Logger, StreamHandler
 from raven.handlers.logbook import SentryHandler
 from raven import Client as SentryClient
+from raven.exceptions import InvalidDsn
 from logbook import NestedSetup
 
 from ..config import Config
@@ -32,7 +33,23 @@ def forever():
 
 
 def create_agents(agents_cfg: list):
-    return list(map(lambda x: (x.instance, x), agents_cfg))
+    return list(map(lambda x: (x.instance, x),
+                    filter(lambda x: x.is_valid(), agents_cfg)))
+
+
+def register_augments(client: processor.QClient,
+                      augments_cfg: list,
+                      logger: Logger):
+    for augment in augments_cfg:
+        if not augment.is_valid():
+            logger.warn("Augment '{0}' failed to pass validation"
+                        .format(augment))
+            continue
+
+        inst = augment.instance
+
+        print(inst)
+        processor.register_augment(client, augment.key, inst.activate, logger)
 
 
 def init(agents: list):
@@ -47,7 +64,7 @@ async def step(client: object,
     tasks = []
 
     for agent, agent_cfg in agents:
-        tags = [agent_cfg.tag] if agent_cfg.tag else []
+        tags = agent_cfg.tags
 
         def event_fn(**kwargs):
             if "tags" in kwargs:
@@ -86,6 +103,7 @@ async def main_loop(cfg: Config,
     transport = transport_cls(riemann.host, riemann.port)
     client = processor.QClient(transport)
     agents = create_agents(cfg.agents)
+    register_augments(client, cfg.augments, logger)
     executor = cfg.executor_class(max_workers=cfg.executors_count)
     loop.set_default_executor(executor)
 
@@ -114,6 +132,8 @@ async def main_loop(cfg: Config,
             logger.info("Stopping Oshino")
             break
 
+    client.on_stop()
+
 
 def start_loop(cfg: Config):
     handlers = []
@@ -123,10 +143,14 @@ def start_loop(cfg: Config):
     logger.info("Running forever in {0} seconds interval. Press Ctrl+C to exit"
                 .format(cfg.interval))
     if cfg.sentry_dsn:
-        client = SentryClient(cfg.sentry_dsn)
-        handlers.append(SentryHandler(client,
-                                      level=logbook.ERROR,
-                                      bubble=True))
+        try:
+            client = SentryClient(cfg.sentry_dsn)
+            handlers.append(SentryHandler(client,
+                                          level=logbook.ERROR,
+                                          bubble=True))
+        except InvalidDsn:
+            logger.warn("Invalid Sentry DSN '{0}' providen. Skipping"
+                        .format(cfg.sentry_dsn))
 
     setup = NestedSetup(handlers)
     setup.push_application()

@@ -94,6 +94,7 @@ def register_augment(client, key, augment_fn, logger):
                 stopped = True
                 continue
             yield event
+        logger.info("Shutting down generator")
         raise StopIteration
 
     q = Queue()
