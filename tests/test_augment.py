@@ -2,6 +2,8 @@ from pytest import mark
 from logbook import Logger
 
 from oshino.core import processor
+from oshino.augments import InvalidAugment
+from oshino.config import AugmentConfig
 from .fixtures import (mock_client,
                        broken_transport,
                        executor,
@@ -92,6 +94,14 @@ class TestAugment(object):
 
         assert len(mock_client.events) == 1
         assert td < 0.5
+
+    def test_invalid_augment(self):
+        aug = InvalidAugment({})
+        assert not aug.is_valid()
+
+    def test_invalid_augment_from_config(self):
+        cfg = AugmentConfig({"module": "oshino.augments.InvalidAugment"})
+        assert not cfg.is_valid()
 
 
 class TestStatsAugments(object):

@@ -76,7 +76,7 @@ class RiemannConfig(ConfigBase):
         return getattr(riemann_client.transport, raw)
 
 
-class AgentConfig(ConfigBase, InstanceMixin, TagMixin):
+class AgentConfig(InstanceMixin, TagMixin):
 
     """
     Config for setuping agent
@@ -87,7 +87,7 @@ class AgentConfig(ConfigBase, InstanceMixin, TagMixin):
         self._instance = None
 
 
-class AugmentConfig(ConfigBase, InstanceMixin, TagMixin):
+class AugmentConfig(InstanceMixin, TagMixin):
 
     """
     Config for setuping augment

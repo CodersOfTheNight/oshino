@@ -45,7 +45,10 @@ def register_augments(client: processor.QClient,
             logger.warn("Augment '{0}' failed to pass validation"
                         .format(augment))
             continue
+
         inst = augment.instance
+
+        print(inst)
         processor.register_augment(client, augment.key, inst.activate, logger)
 
 

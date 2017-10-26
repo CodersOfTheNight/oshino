@@ -1,12 +1,17 @@
 from time import time
 
+from oshino.config import TagMixin
 
-class AugmentBase(object):
+
+class AugmentBase(TagMixin):
     def __init__(self, data):
         self._data = data
 
     def activate(self, client, g):
         pass
+
+    def is_valid(self):
+        return True
 
     @property
     def name(self):
@@ -19,10 +24,6 @@ class AugmentBase(object):
     @property
     def key(self):
         return self._data["key"]
-
-    @property
-    def tag(self):
-        return self._data.get("tag", None)
 
     def send_event(self, client, **kwargs):
         tags = [self.tag] if self.tag else []
