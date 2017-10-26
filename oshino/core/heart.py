@@ -32,13 +32,18 @@ def forever():
 
 
 def create_agents(agents_cfg: list):
-    return list(map(lambda x: (x.instance, x), agents_cfg))
+    return list(map(lambda x: (x.instance, x),
+                    filter(lambda x: x.is_valid(), agents_cfg)))
 
 
 def register_augments(client: processor.QClient,
                       augments_cfg: list,
                       logger: Logger):
     for augment in augments_cfg:
+        if not augment.is_valid():
+            logger.warn("Augment '{0}' failed to pass validation"
+                        .format(augment))
+            continue
         inst = augment.instance
         processor.register_augment(client, augment.key, inst.activate, logger)
 
