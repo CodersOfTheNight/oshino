@@ -49,8 +49,6 @@ class TagMixin(object):
         return self._data.get("tags", []) + [self.tag] if self.tag else []
 
 
-
-
 class RiemannConfig(ConfigBase):
 
     """
