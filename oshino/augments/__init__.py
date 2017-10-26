@@ -50,3 +50,6 @@ class InvalidAugment(AugmentBase):
 
     def is_valid(self):
         return False
+
+    def activate(self, client, g):
+        raise RuntimeError("We shouldn't get here!")
