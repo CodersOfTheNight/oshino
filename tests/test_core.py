@@ -140,8 +140,8 @@ class TestRobustness(object):
                                    lagging_agent,
                                    mock_client,
                                    event_loop):
-        assert stub_agent.is_valid()
-        assert lagging_agent.is_valid()
+        assert stub_agent[0].is_valid()
+        assert lagging_agent[0].is_valid()
 
         ts = time()
         (done, pending) = await step(
