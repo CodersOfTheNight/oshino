@@ -41,3 +41,12 @@ class AugmentBase(object):
 def consume(q):
     while not q.empty():
         yield q.get()
+
+
+class InvalidAugment(AugmentBase):
+    """
+    Only for Testing purposes
+    """
+
+    def is_valid(self):
+        return False

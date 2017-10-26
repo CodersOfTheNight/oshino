@@ -17,3 +17,6 @@ augments:
     module: oshino.augments.stats.SimpleMovingAverage
     step: 5
     tag: "msa"
+  - name: failing augment
+    key: test
+    module: oshino.augments.InvalidAugment
