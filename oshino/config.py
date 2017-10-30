@@ -46,7 +46,7 @@ class TagMixin(object):
 
     @property
     def tags(self):
-        return self._data.get("tags", []) + [self.tag] if self.tag else []
+        return self._data.get("tags", []) + ([self.tag] if self.tag else [])
 
 
 class RiemannConfig(ConfigBase):
