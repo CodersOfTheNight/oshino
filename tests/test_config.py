@@ -7,7 +7,7 @@ from pytest import fixture
 
 from riemann_client.transport import TCPTransport
 
-from oshino.config import Config, RiemannConfig, load
+from oshino.config import Config, RiemannConfig, load, AgentConfig
 from oshino.agents.test_agent import StubAgent
 from oshino.augments.stats import SimpleMovingAverage
 from oshino import version
@@ -112,9 +112,34 @@ class TestAgents(object):
         obj = agents[0].instance
         assert isinstance(obj, StubAgent)
 
-    def test_agent_tag(self, base_config):
-        agents = base_config.agents
-        assert agents[0].tag == "test"
+    def test_single_tag(self):
+        cfg = {
+            "name": "test-agent",
+            "module": "oshino.agents.test_agent.StubAgent",
+            "tag": "test"
+        }
+        agent_cfg = AgentConfig(cfg)
+        assert agent_cfg.tag == "test"
+
+    def test_single_w_multiple_tags(self):
+        cfg = {
+            "name": "test-agent",
+            "module": "oshino.agents.test_agent.StubAgent",
+            "tag": "test",
+            "tags": ["test2", "test3"]
+        }
+        agent_cfg = AgentConfig(cfg)
+        assert agent_cfg.tag == "test"
+        assert set(agent_cfg.tags) == set(["test", "test2", "test3"])
+
+    def test_multiple_wo_single_tags(self):
+        cfg = {
+            "name": "test-agent",
+            "module": "oshino.agents.test_agent.StubAgent",
+            "tags": ["test2", "test3"]
+        }
+        agent_cfg = AgentConfig(cfg)
+        assert set(agent_cfg.tags) == set(["test2", "test3"])
 
 
 class TestAugments(object):
