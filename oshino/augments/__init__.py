@@ -26,7 +26,7 @@ class AugmentBase(TagMixin):
         return self._data["key"]
 
     def send_event(self, client, **kwargs):
-        tags = [self.tag] if self.tag else []
+        tags = self.tags
         if "tags" in kwargs:
             for tag in tags:
                 kwargs["tags"].append(tag)
@@ -37,11 +37,6 @@ class AugmentBase(TagMixin):
             kwargs["time"] = int(time())
 
         client.event(**kwargs)
-
-
-def consume(q):
-    while not q.empty():
-        yield q.get()
 
 
 class InvalidAugment(AugmentBase):
