@@ -39,7 +39,6 @@ class AugmentBase(TagMixin):
         client.event(**kwargs)
 
 
-
 class InvalidAugment(AugmentBase):
     """
     Only for Testing purposes
