@@ -9,4 +9,6 @@ Known agents:
 - [oshino-statsd](https://github.com/CodersOfTheNight/oshino-statsd)
 - [oshino-hw](https://github.com/CodersOfTheNight/oshino-hw)
 - [oshino-prometheus](https://github.com/CodersOfTheNight/oshino-prometheus)
+- [oshino-elasticsearch](https://github.com/CodersOfTheNight/oshino-elasticsearch)
+- [oshino-zmq](https://github.com/CodersOfTheNight/oshino-zmq)
 
