@@ -11,4 +11,4 @@ Known agents:
 - [oshino-prometheus](https://github.com/CodersOfTheNight/oshino-prometheus)
 - [oshino-elasticsearch](https://github.com/CodersOfTheNight/oshino-elasticsearch)
 - [oshino-zmq](https://github.com/CodersOfTheNight/oshino-zmq)
-
+- [oshino-jmx](https://github.com/CodersOfTheNight/oshino-jmx)
