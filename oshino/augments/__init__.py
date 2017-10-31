@@ -39,10 +39,6 @@ class AugmentBase(TagMixin):
         client.event(**kwargs)
 
 
-def consume(q):
-    while not q.empty():
-        yield q.get()
-
 
 class InvalidAugment(AugmentBase):
     """
