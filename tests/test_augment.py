@@ -1,4 +1,4 @@
-from pytest import mark
+from pytest import mark, raises
 from logbook import Logger
 
 from oshino.core import processor
@@ -27,9 +27,9 @@ class TestAugment(object):
                 events_received += 1
 
         processor.register_augment(mock_client, "test", stub_augment, logger)
-        mock_client.event(service="test")
-        mock_client.event(service="test")
-        mock_client.event(service="test")
+        mock_client.event(service="test", tags=["test"])
+        mock_client.event(service="test", tags=["test"])
+        mock_client.event(service="test", tags=["test"])
 
         mock_client.on_stop()
 
@@ -102,6 +102,11 @@ class TestAugment(object):
     def test_invalid_augment_from_config(self):
         cfg = AugmentConfig({"module": "oshino.augments.InvalidAugment"})
         assert not cfg.is_valid()
+
+    def test_invalid_augment_raise_exception(self):
+        cfg = AugmentConfig({"module": "oshino.augments.InvalidAugment"})
+        with raises(RuntimeError):
+            cfg.instance.activate(None, None)
 
 
 class TestStatsAugments(object):
