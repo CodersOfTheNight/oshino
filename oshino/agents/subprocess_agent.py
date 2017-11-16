@@ -22,3 +22,27 @@ class SubprocessAgent(Agent):
                  metric_f=1.0,
                  description="Exit code: {0}".format(exitcode)
                  )
+
+
+class StdoutAgent(Agent):
+    @property
+    def cmd(self):
+        return self._data["cmd"]
+
+    @property
+    def metric_separator(self):
+        return self._data.get("metric-separator", "=")
+
+    async def process(self, event_fn):
+        proc = await asyncio.create_subprocess_shell(
+                self.cmd,
+                stdout=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await proc.communicate()
+        content = stdout.decode().strip()
+        metrics = [metric.split("=", 1) for metric in content.split("\n")]
+
+        for key, val in metrics:
+            event_fn(service=self.prefix + key,
+                     state="ok",
+                     metric_f=float(val))
