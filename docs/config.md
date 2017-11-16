@@ -4,6 +4,7 @@ Base Config
 - `riemann.host` - riemann hostname (default: localhost)
 - `riemann.port` - riemann port (default: 5555)
 - `riemann.transport` - set transport protocol for riemann (default: TCPTransport)
+- `riemann.ca-certs` - set location of CA bundle, used to enable TLS encryption oshino <-> riemann. If transport is isn't specified, it will change it to TLSTransport
 - `loglevel` - level of logging (default: INFO)
 - `sentry-dsn` - sentry address for error reporting (default: `None`)
 - `executor` - allows to define executor class, default one is `concurrent.futures.ThreadPoolExecutor`
