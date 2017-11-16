@@ -83,7 +83,7 @@ class RiemannConfig(ConfigBase):
             return BlankTransport
 
         raw = self._data.get("transport", None)
-        if raw: # Transport is defined
+        if raw:  # Transport is defined
             return getattr(riemann_client.transport, raw)
         elif self.ca_certs:
             return partial(TLSTransport, ca_certs=self.ca_certs)
