@@ -135,7 +135,7 @@ async def main_loop(cfg: Config,
     client.on_stop()
 
 
-def start_loop(cfg: Config):
+def start_loop(cfg: Config, noop=False):
     handlers = []
     handlers.append(StreamHandler(sys.stdout, level=cfg.log_level))
     logger = Logger("Heart")
@@ -159,7 +159,7 @@ def start_loop(cfg: Config):
     try:
         loop.run_until_complete(main_loop(cfg,
                                           logger,
-                                          cfg.riemann.transport,
+                                          cfg.riemann.transport(noop),
                                           forever,
                                           loop=loop))
     finally:

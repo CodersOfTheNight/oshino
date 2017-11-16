@@ -3,6 +3,10 @@ import yaml
 import logbook
 import riemann_client.transport
 
+from functools import partial
+
+from riemann_client.transport import BlankTransport, TLSTransport, TCPTransport
+
 from jinja2 import Template
 from .util import dynamic_import
 
@@ -71,9 +75,20 @@ class RiemannConfig(ConfigBase):
         return RiemannConfig({})
 
     @property
-    def transport(self):
-        raw = self._data.get("transport", "TCPTransport")
-        return getattr(riemann_client.transport, raw)
+    def ca_certs(self):
+        return self._data.get("ca-certs", None)
+
+    def transport(self, noop=False):
+        if noop:
+            return BlankTransport
+
+        raw = self._data.get("transport", None)
+        if raw: # Transport is defined
+            return getattr(riemann_client.transport, raw)
+        elif self.ca_certs:
+            return partial(TLSTransport, ca_certs=self.ca_certs)
+        else:
+            return TCPTransport
 
 
 class AgentConfig(InstanceMixin, TagMixin):
