@@ -5,7 +5,9 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 from pytest import fixture
 
-from riemann_client.transport import TCPTransport, BlankTransport
+from riemann_client.transport import (TCPTransport,
+                                      BlankTransport,
+                                      TLSTransport)
 
 from oshino.config import Config, RiemannConfig, load, AgentConfig
 from oshino.agents.test_agent import StubAgent
@@ -105,6 +107,14 @@ class TestRiemann(object):
 
     def test_noop_transport_class(self, base_config):
         assert base_config.riemann.transport(noop=True) == BlankTransport
+
+    def test_tls_transport_class(self, base_config):
+        # Hacking a bit >:)
+        base_config._data["riemann"]["ca-certs"] = "/tmp/ca_bundle.pem"
+        klass = base_config.riemann.transport()
+        transport = klass()
+        assert transport.ca_certs == "/tmp/ca_bundle.pem"
+        assert isinstance(transport, TLSTransport)
 
 
 class TestAgents(object):
