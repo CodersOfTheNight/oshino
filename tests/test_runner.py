@@ -16,4 +16,4 @@ def create_loop():
 @patch("oshino.core.heart.create_loop", create_loop)
 def test_startup():
     with raises(SystemExit):
-        main(("--config", "tests/data/test_config.yml", ))
+        main(("--config", "tests/data/test_config.yml", "--noop"))
