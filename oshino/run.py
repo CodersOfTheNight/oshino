@@ -18,4 +18,4 @@ def main(config, noop):
 
 
 if __name__ == "__main__":
-    transportmain()
+    main()
