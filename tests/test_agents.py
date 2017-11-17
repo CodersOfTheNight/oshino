@@ -1,7 +1,6 @@
-import asyncio
 from pytest import fixture, mark
 from oshino.agents.http_agent import HttpAgent, Success, Failure
-from oshino.agents.subprocess_agent import SubprocessAgent
+from oshino.agents.subprocess_agent import SubprocessAgent, StdoutAgent
 from oshino import Agent
 
 
@@ -19,6 +18,18 @@ def subprocess_agent():
     cfg = {"name": "test-subprocess-agent",
            "script": "echo 'Hello world!'"}
     return SubprocessAgent(cfg)
+
+
+@fixture
+def stdout_agent():
+    fake_metrics = """
+    test1 = 1
+    test2 = 2
+    test3 = 3
+    """
+    cfg = {"name": "test-stdout-agent",
+           "cmd": "echo '{0}'".format(fake_metrics)}
+    return StdoutAgent(cfg)
 
 
 @fixture
@@ -183,3 +194,18 @@ class TestSubprocessAgent(object):
 
         await subprocess_agent.process(stub_event_fn)
         assert state == "failure"
+
+
+class TestStdoutAgent(object):
+    @mark.asyncio
+    async def test_parse_content(self, stdout_agent):
+        metrics_output = []
+
+        def stub_event_fn(*args, **kwargs):
+            nonlocal metrics_output
+            metrics_output.append(kwargs)
+
+        await stdout_agent.process(stub_event_fn)
+
+        assert len(metrics_output) == 3
+        assert sum(map(lambda x: x["metric_f"], metrics_output)) == 6

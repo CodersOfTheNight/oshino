@@ -48,8 +48,14 @@ class StdoutAgent(Agent):
 
     @property
     def transform_fn(self):
-        raw = self.data.get("transform-fn", "split_transform")
-        return importlib.import_module(raw)
+        raw = self._data.get(
+                "transform-fn",
+                "oshino.agents.subprocess_agent.split_transform"
+        )
+
+        mod, func = raw.rsplit(".", 1)
+        m = __import__(mod, fromlist=[func])
+        return getattr(m, func)
 
     async def process(self, event_fn):
         proc = await asyncio.create_subprocess_shell(
