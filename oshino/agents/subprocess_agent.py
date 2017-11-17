@@ -59,15 +59,15 @@ class StdoutAgent(Agent):
         return self._data.get("metric-separator", "=")
 
     @property
-    def local_transform(self):
-        return None
-
-    @property
     def transform_fn(self):
-        raw = self._data.get(
-                "transform-fn",
-                "oshino.agents.subprocess_agent.split_transform"
-        )
+        local_fn = self._data.get("local-transform", None)
+        if local_fn:
+            raw = "oshino.agents.subprocess_agent.{0}".format(local_fn)
+        else:
+            raw = self._data.get(
+                    "transform-fn",
+                    "oshino.agents.subprocess_agent.split_transform"
+            )
 
         mod, func = raw.rsplit(".", 1)
         m = __import__(mod, fromlist=[func])
