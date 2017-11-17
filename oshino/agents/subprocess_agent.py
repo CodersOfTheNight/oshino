@@ -1,5 +1,5 @@
+import re
 import asyncio
-import importlib
 
 from . import Agent
 
@@ -30,6 +30,18 @@ def split_transform(m):
         key, val = m.split("=", 1)
         return key.strip(), val.strip()
     except:
+        return None
+
+
+def regex_transform(m):
+    raw = re.match(
+            r"(?P<key>(\w|[.-])+\s*[:=]\s*(?P<val>(\d+([.]\d{1,2})?)))",
+            m
+    )
+
+    if raw:
+        return raw.group("key"), raw.group("val")
+    else:
         return None
 
 
