@@ -59,6 +59,10 @@ class StdoutAgent(Agent):
         return self._data.get("metric-separator", "=")
 
     @property
+    def local_transform(self):
+        return None
+
+    @property
     def transform_fn(self):
         raw = self._data.get(
                 "transform-fn",
