@@ -1,6 +1,7 @@
 import re
 import asyncio
 
+from functools import partial
 from . import Agent
 
 
@@ -25,9 +26,9 @@ class SubprocessAgent(Agent):
                  )
 
 
-def split_transform(m):
+def split_transform(m, metric_sep="="):
     try:
-        key, val = m.split("=", 1)
+        key, val = m.split(metric_sep, 1)
         return key.strip(), val.strip()
     except:
         return None
@@ -55,8 +56,8 @@ class StdoutAgent(Agent):
         return self._data["cmd"]
 
     @property
-    def metric_separator(self):
-        return self._data.get("metric-separator", "=")
+    def args(self):
+        return self._data.get("args", {})
 
     @property
     def transform_fn(self):
@@ -80,7 +81,7 @@ class StdoutAgent(Agent):
         )
         stdout, stderr = await proc.communicate()
         content = stdout.decode().strip()
-        transform = self.transform_fn
+        transform = partial(self.transform_fn, self.args())
         metrics = filter(is_parsed, map(transform, content.split("\n")))
 
         for key, val in metrics:
