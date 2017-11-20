@@ -1,6 +1,6 @@
 aiohttp==1.0.5
 async-timeout==1.1.0
-click==6.6
+click==6.7
 coverage==4.2
 Jinja2==2.8
 logbook==1.0.0
