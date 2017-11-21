@@ -203,6 +203,7 @@ class TestStdoutAgent(object):
 
         def stub_event_fn(*args, **kwargs):
             nonlocal metrics_output
+            print(args, kwargs)
             metrics_output.append(kwargs)
 
         await stdout_agent.process(stub_event_fn)

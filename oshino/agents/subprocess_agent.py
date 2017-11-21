@@ -26,15 +26,17 @@ class SubprocessAgent(Agent):
                  )
 
 
-def split_transform(m, metric_sep="="):
+def split_transform(m, logger, metric_sep="="):
     try:
         key, val = m.split(metric_sep, 1)
         return key.strip(), val.strip()
     except Exception as ex:
+        logger.exception("Failed to parse '{0}' with '{1}' as sep, Reason: {2}"
+                         .format(m, metric_sep, ex))
         return None
 
 
-def regex_transform(m):
+def regex_transform(m, logger):
     raw = re.match(
             r"(?P<key>(\w|[.-])+\s*[:=]\s*(?P<val>(\d+([.]\d{1,2})?)))",
             m
@@ -75,13 +77,14 @@ class StdoutAgent(Agent):
         return getattr(m, func)
 
     async def process(self, event_fn):
+        logger = self.get_logger()
         proc = await asyncio.create_subprocess_shell(
                 self.cmd,
                 stdout=asyncio.subprocess.PIPE
         )
         stdout, stderr = await proc.communicate()
         content = stdout.decode().strip()
-        transform = partial(self.transform_fn, self.args)
+        transform = partial(self.transform_fn, logger=logger, **self.args)
         metrics = filter(is_parsed, map(transform, content.split("\n")))
 
         for key, val in metrics:
