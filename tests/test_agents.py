@@ -26,6 +26,7 @@ def stdout_agent():
     test1 = 1
     test2 = 2
     test3 = 3
+    test4 = abcd
     """
     cfg = {"name": "test-stdout-agent",
            "cmd": "echo '{0}'".format(fake_metrics)}
@@ -203,7 +204,21 @@ class TestStdoutAgent(object):
 
         def stub_event_fn(*args, **kwargs):
             nonlocal metrics_output
-            print(args, kwargs)
+            metrics_output.append(kwargs)
+
+        await stdout_agent.process(stub_event_fn)
+
+        assert len(metrics_output) == 3
+        assert sum(map(lambda x: x["metric_f"], metrics_output)) == 6
+
+    @mark.asyncio
+    async def test_parse_via_regex_local(self, stdout_agent):
+        metrics_output = []
+
+        stdout_agent._data["local_transform"] = "regex_transform"
+
+        def stub_event_fn(*args, **kwargs):
+            nonlocal metrics_output
             metrics_output.append(kwargs)
 
         await stdout_agent.process(stub_event_fn)

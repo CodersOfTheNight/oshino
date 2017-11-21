@@ -29,7 +29,7 @@ class SubprocessAgent(Agent):
 def split_transform(m, logger, metric_sep="="):
     try:
         key, val = m.split(metric_sep, 1)
-        return key.strip(), val.strip()
+        return key.strip(), float(val.strip())
     except Exception as ex:
         logger.warn("Failed to parse '{0}' with '{1}' as sep, Reason: {2}"
                     .format(m, metric_sep, ex))
@@ -43,7 +43,7 @@ def regex_transform(m, logger):
     )
 
     if raw:
-        return raw.group("key"), raw.group("val")
+        return raw.group("key"), float(raw.group("val"))
     else:
         return None
 
