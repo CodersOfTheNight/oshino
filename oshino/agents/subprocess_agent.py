@@ -31,8 +31,8 @@ def split_transform(m, logger, metric_sep="="):
         key, val = m.split(metric_sep, 1)
         return key.strip(), val.strip()
     except Exception as ex:
-        logger.exception("Failed to parse '{0}' with '{1}' as sep, Reason: {2}"
-                         .format(m, metric_sep, ex))
+        logger.warn("Failed to parse '{0}' with '{1}' as sep, Reason: {2}"
+                    .format(m, metric_sep, ex))
         return None
 
 
