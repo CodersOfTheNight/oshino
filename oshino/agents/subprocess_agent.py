@@ -30,7 +30,7 @@ def split_transform(m, metric_sep="="):
     try:
         key, val = m.split(metric_sep, 1)
         return key.strip(), val.strip()
-    except:
+    except Exception as ex:
         return None
 
 
@@ -81,7 +81,7 @@ class StdoutAgent(Agent):
         )
         stdout, stderr = await proc.communicate()
         content = stdout.decode().strip()
-        transform = partial(self.transform_fn, self.args())
+        transform = partial(self.transform_fn, self.args)
         metrics = filter(is_parsed, map(transform, content.split("\n")))
 
         for key, val in metrics:
