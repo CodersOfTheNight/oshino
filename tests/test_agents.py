@@ -22,16 +22,11 @@ def subprocess_agent():
 
 @fixture
 def stdout_agent():
-    fake_metrics = """
-    test1 = 1
-    test2 = 2
-    test3 = 3
-    test4 = abcd
-    """
-    cfg = {"name": "test-stdout-agent",
-           "cmd": "echo '{0}'".format(fake_metrics)}
-    return StdoutAgent(cfg)
-
+    def builder(output):
+        cfg = {"name": "test-stdout-agent",
+               "cmd": "echo '{0}'".format(output)}
+        return StdoutAgent(cfg)
+    return builder
 
 @fixture
 def generic_agent():
@@ -200,28 +195,77 @@ class TestSubprocessAgent(object):
 class TestStdoutAgent(object):
     @mark.asyncio
     async def test_parse_content(self, stdout_agent):
+        fake_metrics = """
+        test1 = 1
+        test2 = 2
+        test3 = 3
+        test4 = abcd
+        """
         metrics_output = []
+        agent = stdout_agent(fake_metrics)
 
         def stub_event_fn(*args, **kwargs):
             nonlocal metrics_output
             metrics_output.append(kwargs)
 
-        await stdout_agent.process(stub_event_fn)
+        await agent.process(stub_event_fn)
 
         assert len(metrics_output) == 3
         assert sum(map(lambda x: x["metric_f"], metrics_output)) == 6
 
     @mark.asyncio
     async def test_parse_via_regex_local(self, stdout_agent):
+        fake_metrics = """
+        test1 = 1
+        test2 = 2
+        test3 = 3
+        test4 = abcd
+        """
         metrics_output = []
+        agent = stdout_agent(fake_metrics)
 
-        stdout_agent._data["local_transform"] = "regex_transform"
+        agent._data["local-transform"] = "regex_transform"
 
         def stub_event_fn(*args, **kwargs):
             nonlocal metrics_output
             metrics_output.append(kwargs)
 
-        await stdout_agent.process(stub_event_fn)
+        await agent.process(stub_event_fn)
 
         assert len(metrics_output) == 3
         assert sum(map(lambda x: x["metric_f"], metrics_output)) == 6
+
+
+    @mark.asyncio
+    async def test_parse_via_regex_complex(self, stdout_agent):
+        fake_metrics = """
+            hw.sensors.acpitz0.temp0=41.00 degC (zone temperature)
+            hw.sensors.km0.temp0=62.00 degC
+            hw.sensors.it0.temp0=41.00 degC
+            hw.sensors.it0.temp1=35.00 degC
+            hw.sensors.it0.temp2=46.00 degC
+            hw.sensors.it0.fan0=0 RPM
+            hw.sensors.it0.fan1=0 RPM
+            hw.sensors.it0.fan2=0 RPM
+            hw.sensors.it0.volt0=0.54 VDC (VCORE_A)
+            hw.sensors.it0.volt1=2.02 VDC (VCORE_B)
+            hw.sensors.it0.volt2=2.75 VDC (+3.3V)
+            hw.sensors.it0.volt3=4.62 VDC (+5V)
+            hw.sensors.it0.volt4=5.12 VDC (+12V)
+            hw.sensors.it0.volt5=-10.49 VDC (-12V)
+            hw.sensors.it0.volt6=-1.06 VDC (-5V)
+            hw.sensors.it0.volt7=3.71 VDC (+5VSB)
+            hw.sensors.it0.volt8=2.16 VDC (VBAT)
+        """
+        metrics_output = []
+        agent = stdout_agent(fake_metrics)
+
+        agent._data["local-transform"] = "regex_transform"
+
+        def stub_event_fn(*args, **kwargs):
+            nonlocal metrics_output
+            metrics_output.append(kwargs)
+
+        await agent.process(stub_event_fn)
+
+        assert len(metrics_output) == 17

@@ -27,6 +27,7 @@ class SubprocessAgent(Agent):
 
 
 def split_transform(m, logger, metric_sep="="):
+
     try:
         key, val = m.split(metric_sep, 1)
         return key.strip(), float(val.strip())
@@ -38,7 +39,7 @@ def split_transform(m, logger, metric_sep="="):
 
 def regex_transform(m, logger):
     raw = re.match(
-            r"(?P<key>(\w|[.-])+\s*[:=]\s*(?P<val>(\d+([.]\d{1,2})?)))",
+            r"(?P<key>(\w|[.-])+\s*[:=]\s*(?P<val>(-?\d+([.]\d{1,2})?)))",
             m
     )
 
@@ -82,10 +83,14 @@ class StdoutAgent(Agent):
                 self.cmd,
                 stdout=asyncio.subprocess.PIPE
         )
+        def strip(x):
+            return x.strip()
         stdout, stderr = await proc.communicate()
         content = stdout.decode().strip()
         transform = partial(self.transform_fn, logger=logger, **self.args)
-        metrics = filter(is_parsed, map(transform, content.split("\n")))
+        metrics = filter(is_parsed,
+                map(transform, map(strip, content.split("\n")))
+        )
 
         for key, val in metrics:
             event_fn(service=self.prefix + key,
