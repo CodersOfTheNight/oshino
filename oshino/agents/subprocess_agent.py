@@ -83,12 +83,14 @@ class StdoutAgent(Agent):
                 self.cmd,
                 stdout=asyncio.subprocess.PIPE
         )
+
         def strip(x):
             return x.strip()
         stdout, stderr = await proc.communicate()
         content = stdout.decode().strip()
         transform = partial(self.transform_fn, logger=logger, **self.args)
-        metrics = filter(is_parsed,
+        metrics = filter(
+                is_parsed,
                 map(transform, map(strip, content.split("\n")))
         )
 
