@@ -39,7 +39,7 @@ def split_transform(m, logger, metric_sep="="):
 
 def regex_transform(m, logger):
     raw = re.match(
-            r"(?P<key>(\w|[.-])+\s*[:=]\s*(?P<val>(-?\d+([.]\d{1,2})?)))",
+            r"(?P<key>(\w|[.-])+)\s*[:=]\s*(?P<val>(-?\d+([.]\d{1,2})?))",
             m
     )
 
