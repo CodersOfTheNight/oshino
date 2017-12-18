@@ -40,7 +40,7 @@ class Agent(object):
     @property
     def ready(self):
         """
-        Function used when agent is `lazy`. 
+        Function used when agent is `lazy`.
         It is being processed only when `ready` condition is satisfied
         """
         return False
