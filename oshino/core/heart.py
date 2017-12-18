@@ -48,7 +48,6 @@ def register_augments(client: processor.QClient,
 
         inst = augment.instance
 
-        print(inst)
         processor.register_augment(client, augment.key, inst.activate, logger)
 
 
@@ -65,6 +64,9 @@ async def step(client: object,
 
     for agent, agent_cfg in agents:
         tags = agent_cfg.tags
+
+        if agent.lazy and not agent.ready:
+            continue
 
         def event_fn(**kwargs):
             if "tags" in kwargs:

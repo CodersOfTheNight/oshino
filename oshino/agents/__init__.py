@@ -28,3 +28,19 @@ class Agent(object):
 
     def is_valid(self):
         return "name" in self._data
+
+    @property
+    def lazy(self):
+        """
+        Agents with flag `lazy` gives data when they want to,
+        not when they are requested for.
+        """
+        return self._data.get("lazy", False)
+
+    @property
+    def ready(self):
+        """
+        Function used when agent is `lazy`. 
+        It is being processed only when `ready` condition is satisfied
+        """
+        return False
