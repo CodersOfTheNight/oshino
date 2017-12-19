@@ -80,7 +80,7 @@ async def step(client: object,
 
             client.event(**kwargs)
 
-        tasks.append(agent.process(event_fn))
+        tasks.append(agent.pull_metrics(event_fn))
     return await asyncio.wait(tasks, timeout=timeout)
 
 
