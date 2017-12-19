@@ -1,9 +1,10 @@
 from time import time
+from abc import ABC, abstractmethod
 
 from logbook import Logger
 
 
-class Agent(object):
+class Agent(ABC):
 
     def __init__(self, cfg):
         self._data = cfg
@@ -26,6 +27,7 @@ class Agent(object):
     def get_logger(self):
         return Logger(self.__class__.__name__)
 
+    @abstractmethod
     async def process(self, event_fn):
         """
         Each agent must implement this one to provide actual logic

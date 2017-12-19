@@ -3,6 +3,10 @@ from oshino.agents.http_agent import HttpAgent, Success, Failure
 from oshino.agents.subprocess_agent import SubprocessAgent, StdoutAgent
 from oshino import Agent
 
+class StubAgent(Agent):
+    async def process(self, event_fn):
+        return True
+
 
 @fixture
 def http_agent():
@@ -31,7 +35,7 @@ def stdout_agent():
 @fixture
 def generic_agent():
     cfg = {"name": "Generic Agent"}
-    return Agent(cfg)
+    return StubAgent(cfg)
 
 
 @fixture(scope="session", autouse=True)
@@ -68,7 +72,7 @@ class TestGenericAgent(object):
 
     def test_logger(self, generic_agent):
         logger = generic_agent.get_logger()
-        assert logger.name == "Agent"
+        assert logger.name == "StubAgent"
 
     def test_start_stop(self, generic_agent):
         # Just touching at the moment
