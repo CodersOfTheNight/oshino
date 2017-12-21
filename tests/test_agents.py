@@ -1,3 +1,5 @@
+import asyncio
+
 from pytest import fixture, mark
 from oshino.agents.http_agent import HttpAgent, Success, Failure
 from oshino.agents.subprocess_agent import SubprocessAgent, StdoutAgent
@@ -36,6 +38,17 @@ def stdout_agent():
 def generic_agent():
     cfg = {"name": "Generic Agent"}
     return StubAgent(cfg)
+
+@fixture
+def lazy_agent():
+    cfg = {
+        "name": "lazy-http",
+        "url": "http://localhost:9998/health",
+        "lazy": True,
+        "interval": 1
+    }
+    return HttpAgent(cfg)
+
 
 
 @fixture(scope="session", autouse=True)
@@ -160,6 +173,22 @@ class TestHttpAgent(object):
 
         await http_agent.process(stub_event_fn)
         assert state == "failure"
+
+    @mark.asyncio
+    async def test_lazy_http_agent(self, lazy_agent):
+        resp = None
+        def stub_event_fn(*args, **kwargs):
+            nonlocal resp
+            resp = kwargs
+
+        await lazy_agent.pull_metrics(stub_event_fn)
+        assert resp is None
+
+        await asyncio.sleep(1)
+        await lazy_agent.pull_metrics(stub_event_fn)
+
+        assert resp["state"] == "success"
+
 
 
 class TestSubprocessAgent(object):

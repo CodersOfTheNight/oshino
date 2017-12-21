@@ -1,6 +1,8 @@
 from time import time
 from abc import ABC, abstractmethod
 
+from oshino.util import current_ts
+
 from logbook import Logger
 
 
@@ -8,7 +10,7 @@ class Agent(ABC):
 
     def __init__(self, cfg):
         self._data = cfg
-        self._last_run = int(time())
+        self._last_run = current_ts()
 
     def on_start(self):
         pass
@@ -46,7 +48,7 @@ class Agent(ABC):
             return None
 
         result = await self.process(event_fn)
-        self._last_run = int(time())
+        self._last_run = current_ts()
         return result
 
     @property
@@ -63,8 +65,14 @@ class Agent(ABC):
         Function used when agent is `lazy`.
         It is being processed only when `ready` condition is satisfied
         """
-        now = int(time())
-        return (now - self._last_run) > self.interval * 1000
+        logger = self.get_logger()
+        now = current_ts()
+        logger.trace("Current time: {0}".format(now))
+        logger.trace("Last Run: {0}".format(self._last_run))
+        delta = (now - self._last_run)
+        logger.trace("Delta: {0}, Interval: {1}"
+                     .format(delta, self.interval * 1000))
+        return delta > self.interval * 1000
 
     @property
     def interval(self):
