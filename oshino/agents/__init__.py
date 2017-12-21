@@ -42,6 +42,9 @@ class Agent(ABC):
         Method called by core.
         Should not be overwritten.
         """
+        if self.lazy and not self.ready:
+            return None
+
         result = await self.process(event_fn)
         self._last_run = int(time())
         return result
