@@ -1,4 +1,4 @@
-from time import time
+from datetime import datetime
 
 
 def dynamic_import(path):
@@ -10,4 +10,5 @@ def current_ts():
     """
     Just gives current timestamp.
     """
-    return int(time() * 1000)
+    utcnow = datetime.utcnow()
+    return int(utcnow.timestamp() * 1000)
