@@ -63,7 +63,7 @@ class QClient(QueuedClient, AugmentFixture):
         self.queue = riemann_pb2.Msg()
 
     def flush(self, transport):
-        response = self.transport.send(self.queue)
+        response = transport.send(self.queue)
         self.clear_queue()
         return response
 
