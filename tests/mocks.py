@@ -7,17 +7,23 @@ from oshino.core.processor import AugmentFixture
 
 class MockClient(AugmentFixture):
 
-    def __init__(self):
+    def __init__(self, transport=None):
         self.events = []
         self.augments = {}
         self.tasks = []
+        self.transport = transport
 
     def event(self, **kwargs):
         self.tasks.append(self.apply_augment(copy(kwargs)))
         self.events.append(kwargs)
 
-    def flush(self):
+    def clear_queue(self):
         self.events = []
+
+    def flush(self):
+        response = self.transport.send(self.events)
+        self.clear_queue()
+        return response
 
 
 class MockTransport(BlankTransport):

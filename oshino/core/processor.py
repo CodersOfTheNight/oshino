@@ -7,6 +7,7 @@ from logbook import Logger
 from queue import Queue
 
 from riemann_client.client import QueuedClient
+from riemann_client.transport import RiemannError
 
 
 logger = Logger("Processor")
@@ -49,7 +50,6 @@ class AugmentFixture(object):
 
 class QClient(QueuedClient, AugmentFixture):
     def __init__(self, *args, **kwargs):
-        super(QClient, self).__init__(*args, **kwargs)
         self.augments = {}
         self.tasks = []
 
@@ -57,21 +57,29 @@ class QClient(QueuedClient, AugmentFixture):
         self.tasks.append(self.apply_augment(copy(data)))
         super(QClient, self).event(**data)
 
+    def flush(self, transport):
+        response = self.transport.send(self.queue)
+        self.clear_queue()
+        return response
+
 
 async def flush(client, transport, logger):
     future = asyncio.Future()
 
     async def process_async(future):
         try:
+            logger.debug("Flushing queue")
             transport.connect()
-            client.flush()
-            transport.disconnect()
-
-            future.set_result(True)
-        except ConnectionRefusedError as ce:
-            logger.warn(ce)
-
+            client.flush(transport)
+        except (ConnectionRefusedError, RiemannError) as ex:
+            logger.warn(ex)
             future.set_result(False)
+            logger.debug("Flush failed due to connection errors")
+        else:
+            logger.debug("Flush sucessful")
+            future.set_result(True)
+        finally:
+            transport.disconnect()
 
     asyncio.ensure_future(process_async(future))
     await future

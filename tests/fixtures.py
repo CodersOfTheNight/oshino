@@ -32,11 +32,13 @@ def mock_transport():
 def broken_transport():
     return MockTransport(broken=True)
 
+
 @fixture(scope="session")
 def executor(request):
     loop = asyncio.get_event_loop()
     print("Loop: {0}".format(loop))
     ex = ThreadPoolExecutor(max_workers=3)
+
     def on_stop():
         ex.shutdown(wait=True)
         loop.close()
