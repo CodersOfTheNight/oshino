@@ -8,6 +8,7 @@ from queue import Queue
 
 from riemann_client.client import QueuedClient
 from riemann_client.transport import RiemannError
+from riemann_client import riemann_pb2
 
 
 logger = Logger("Processor")
@@ -52,10 +53,14 @@ class QClient(QueuedClient, AugmentFixture):
     def __init__(self, *args, **kwargs):
         self.augments = {}
         self.tasks = []
+        self.queue = riemann_pb2.Msg()
 
     def event(self, **data):
         self.tasks.append(self.apply_augment(copy(data)))
         super(QClient, self).event(**data)
+
+    def clear_queue(self):
+        self.queue = riemann_pb2.Msg()
 
     def flush(self, transport):
         response = self.transport.send(self.queue)
