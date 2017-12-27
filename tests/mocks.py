@@ -25,6 +25,7 @@ class MockTransport(BlankTransport):
     def __init__(self, host=None, port=None, broken=False):
         self.connected = False
         self.broken = broken
+        self.sneaky = False
 
     def connect(self):
         if self.broken:
@@ -35,7 +36,7 @@ class MockTransport(BlankTransport):
         self.connected = False
 
     def send(self, message):
-        if self.broken:
+        if self.broken or self.sneaky:
             raise RiemannError
 
         return True

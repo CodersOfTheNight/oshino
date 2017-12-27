@@ -187,3 +187,29 @@ class TestRobustness(object):
         broken_transport.broken = False
         await processor.flush(mock_client, broken_transport, logger)
         assert len(mock_client.events) == 0
+
+    @mark.asyncio
+    async def test_w_sneaky_transport(self,
+                                      stub_agent,
+                                      mock_client,
+                                      broken_transport,
+                                      event_loop):
+
+        # Usual workflow
+        broken_transport.broken = False
+        broken_transport.sneaky = False
+        assert len(mock_client.events) == 0
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0
+        # Repeat everything, just with sneaky transport
+        broken_transport.sneaky = True
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 1
+        # Check if it is able to recover
+        broken_transport.sneaky = False
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0
