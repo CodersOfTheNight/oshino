@@ -71,10 +71,14 @@ async def flush(client, transport, logger):
             logger.debug("Flushing queue")
             transport.connect()
             client.flush(transport)
-        except (ConnectionRefusedError, RiemannError) as ex:
+        except (RiemannError, ConnectionRefusedError) as ex:
             logger.warn(ex)
             future.set_result(False)
             logger.debug("Flush failed due to connection errors")
+        except Exception as ex:
+            logger.exception(ex)
+            future.set_result(False)
+            raise ex
         else:
             logger.debug("Flush sucessful")
             future.set_result(True)

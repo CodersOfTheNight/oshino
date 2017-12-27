@@ -20,8 +20,8 @@ class MockClient(AugmentFixture):
     def clear_queue(self):
         self.events = []
 
-    def flush(self):
-        response = self.transport.send(self.events)
+    def flush(self, transport):
+        response = transport.send(self.events)
         self.clear_queue()
         return response
 
