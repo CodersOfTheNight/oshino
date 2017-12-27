@@ -162,3 +162,28 @@ class TestRobustness(object):
         for p in pending:
             await p
 
+
+    @mark.asyncio
+    async def test_w_broken_transport(self,
+                                      stub_agent,
+                                      mock_client,
+                                      broken_transport,
+                                      event_loop):
+
+        # Usual workflow
+        broken_transport.broken = False
+        assert len(mock_client.events) == 0
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0
+        # Repeat everything, just with broken transport
+        broken_transport.broken = True
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 1
+        # Check if it is able to recover
+        broken_transport.broken = False
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0

@@ -1,6 +1,6 @@
 from copy import copy
 
-from riemann_client.transport import BlankTransport
+from riemann_client.transport import BlankTransport, RiemannError
 
 from oshino.core.processor import AugmentFixture
 
@@ -33,3 +33,9 @@ class MockTransport(BlankTransport):
 
     def disconnect(self):
         self.connected = False
+
+    def send(self, message):
+        if self.broken:
+            raise RiemannError
+
+        return True
