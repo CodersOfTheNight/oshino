@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from oshino.util import current_ts
 
 
-
 class Agent(ABC):
 
     def __init__(self, cfg):
