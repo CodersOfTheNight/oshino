@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 from oshino.util import current_ts
 
-from logbook import Logger
 
 
 class Agent(ABC):
@@ -26,6 +25,7 @@ class Agent(ABC):
         return "{0}.".format(self.name)
 
     def get_logger(self):
+        from logbook import Logger
         return Logger(self.__class__.__name__)
 
     @abstractmethod
