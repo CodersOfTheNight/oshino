@@ -4,8 +4,7 @@ python:
 - 3.6
 
 install:
-  - pip install -r requirements/release.txt
-  - pip install -r requirements/test.txt
+  - python setup install
 
 script:
   - flake8 oshino
