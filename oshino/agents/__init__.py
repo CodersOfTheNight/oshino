@@ -1,6 +1,3 @@
-from logbook import Logger
-
-
 class Agent(object):
 
     def __init__(self, cfg):
@@ -21,6 +18,7 @@ class Agent(object):
         return "{0}.".format(self.name)
 
     def get_logger(self):
+        from logbook import Logger
         return Logger(self.__class__.__name__)
 
     async def process(self, event_fn):
