@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-from setuptools import setup
+from setuptools import setup, find_packages
 try:
     from pip._internal.req import parse_requirements
 except:
@@ -22,7 +22,7 @@ setup(name="oshino",
       author="Šarūnas Navickas",
       author_email="zaibacu@gmail.com",
       license="MIT",
-      packages=["oshino", "oshino.core", "oshino.agents"],
+      packages=find_packages(),
       install_requires=[str(ir.req) for ir in install_reqs],
       test_suite="pytest",
       tests_require=[str(tr.req) for tr in test_reqs],
