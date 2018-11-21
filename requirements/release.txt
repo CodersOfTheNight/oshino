@@ -1,7 +1,7 @@
 aiohttp~=3.4.0
 click==6.7
 coverage==4.2
-Jinja2==2.8
+Jinja2
 logbook==1.0.0
 MarkupSafe==0.23
 protobuf==3.1.0.post1
