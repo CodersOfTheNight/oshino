@@ -11,4 +11,4 @@ COPY compose/config.yaml .
 
 RUN python setup.py install
 
-CMD ['oshino-admin', 'start']
+CMD ["/usr/local/bin/oshino", "--config=config.yaml"]
