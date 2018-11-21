@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  oshino:
+    build:
+      context: .
+      dockerfile: compose/Dockerfile
+    volumes:
+      - ${PWD}/oshino:/usr/src/oshino/oshino
+  riemann:
+    image: "rlister/riemann"
