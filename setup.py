@@ -7,7 +7,7 @@ except:
 from oshino.version import get_version
 
 install_reqs = list(parse_requirements("requirements/release.txt", session={}))
-ntest_reqs = list(parse_requirements("requirements/test.txt", session={}))
+test_reqs = list(parse_requirements("requirements/test.txt", session={}))
 
 with open("README.md", "r") as f:
     desc = f.read()
