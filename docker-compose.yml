@@ -9,7 +9,7 @@ services:
     build:
       context: .
       dockerfile: compose/Dockerfile
-    command: ["/usr/local/bin/oshino-admin", "query", "'tagged = \"healthcheck\"'"]
+    command: ["/usr/local/bin/pytest", "tests/it_query.py"]
     depends_on:
       - oshino
       - riemann

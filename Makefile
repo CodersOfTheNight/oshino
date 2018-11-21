@@ -7,4 +7,4 @@ rebuild-compose:
 	docker-compose down && docker-compose build
 
 run-integration-tests: pull-containers rebuild-compose
-	docker-compose up --remove-orphans
+	docker-compose up --remove-orphans --abort-on-container-exit
