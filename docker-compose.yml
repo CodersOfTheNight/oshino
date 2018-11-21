@@ -5,7 +5,13 @@ services:
     build:
       context: .
       dockerfile: compose/Dockerfile
-    volumes:
-      - ./oshino:/usr/src/oshino/oshino
+  oshino-query:
+    build:
+      context: .
+      dockerfile: compose/Dockerfile
+    command: ["/usr/local/bin/oshino-admin", "query", "'tagged = \"healthcheck\"'"]
+    depends_on:
+      - oshino
+      - riemann
   riemann:
     image: "rlister/riemann"

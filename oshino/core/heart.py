@@ -161,7 +161,7 @@ def start_loop(cfg: Config, noop=False):
     try:
         loop.run_until_complete(main_loop(cfg,
                                           logger,
-                                          cfg.riemann.transport(noop),
+                                          cfg.riemann.get_transport(noop),
                                           forever,
                                           loop=loop))
     finally:
