@@ -5,7 +5,7 @@ Jinja2==2.8
 logbook==1.0.0
 MarkupSafe==0.23
 protobuf==3.1.0.post1
-python-dotenv==0.6.0
+python-dotenv==0.9.1
 PyYAML==3.12
 riemann-client==6.3.0
 six==1.10.0

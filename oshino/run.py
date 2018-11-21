@@ -1,9 +1,16 @@
 import click
 from dotenv import load_dotenv, find_dotenv
+from logbook import Logger
 from .config import load
 from .core.heart import start_loop
 
-load_dotenv(find_dotenv())
+
+logger = Logger("Runner")
+
+try:
+    load_dotenv(find_dotenv())
+except Exception as ex:
+    logger.error("Error while loading .env: '{}'. Ignoring.".format(ex))
 
 
 @click.command()
