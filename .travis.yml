@@ -3,6 +3,9 @@ python:
 - 3.5
 - 3.6
 
+services:
+  - docker
+
 install:
   - python setup.py install
   - pip install -r requirements/test.txt
