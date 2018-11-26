@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: compose/Dockerfile
+    depends_on:
+      - riemann
   oshino-query:
     build:
       context: .

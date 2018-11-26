@@ -1,5 +1,6 @@
 ---
-interval: 1
+interval: 5
+loglevel: DEBUG
 riemann:
   host: riemann
   port: 5555
