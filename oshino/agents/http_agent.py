@@ -1,6 +1,6 @@
 import aiohttp
 
-from time import time
+from ..util import timer
 from . import Agent
 
 
@@ -46,13 +46,13 @@ class HttpAgent(Agent):
 
     async def process(self, event_fn):
         logger = self.get_logger()
-        ts = time()
+        ts = timer()
         state = None
         async with aiohttp.ClientSession() as session:
             async with session.get(self.url) as resp:
                 state = self.translate_status(resp.status)
-        te = time()
-        span = int((te - ts) * 1000)
+        te = timer()
+        span = int(te - ts)
         logger.debug("Request to {url} returned status code {code}(as {state})"
                      "in {span} milliseconds.".format(url=self.url,
                                                       code=resp.status,

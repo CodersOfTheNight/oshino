@@ -2,7 +2,6 @@ import asyncio
 import sys
 import logbook
 
-from time import time
 from typing import TypeVar, Generic
 from asyncio import BaseEventLoop
 
@@ -14,6 +13,7 @@ from logbook import NestedSetup
 
 from ..config import Config
 from ..version import get_version
+from ..util import timer
 from . import (send_heartbeat,
                send_timedelta,
                send_pending_events_count,
@@ -76,7 +76,7 @@ async def step(client: object,
                 kwargs["tags"] = tags
 
             if "time" not in kwargs:
-                kwargs["time"] = int(time())
+                kwargs["time"] = int(timer())
 
             client.event(**kwargs)
 
@@ -132,14 +132,15 @@ async def main_loop(cfg: Config,
     init(agents)
 
     while True:
-        ts = time()
+        ts = timer()
         (done, pending) = await step(client,
                                      agents,
-                                     timeout=cfg.interval * 1.5,
+                                     timeout=cfg.interval,
                                      loop=loop)
+        logger.info(pending)
 
-        te = time()
-        td = te - ts
+        te = timer()
+        td = int(te - ts)
         instrumentation(client=client,
                         logger=logger,
                         interval=cfg.interval,
