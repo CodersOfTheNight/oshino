@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from oshino.util import current_ts
+from oshino.util import current_ts, timer
 
 
 class Agent(ABC):
@@ -37,15 +37,20 @@ class Agent(ABC):
     def is_valid(self):
         return "name" in self._data
 
-    async def pull_metrics(self, event_fn):
+    async def pull_metrics(self, event_fn, loop=None):
         """
         Method called by core.
         Should not be overwritten.
         """
         if self.lazy and not self.ready:
             return None
+        logger = self.get_logger()
 
+        ts = timer()
+        logger.trace("Waiting for process event")
         result = await self.process(event_fn)
+        td = int(timer() - ts)
+        logger.trace("It took: {}ms".format(td))
         self._last_run = current_ts()
         return result
 

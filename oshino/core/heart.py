@@ -80,8 +80,12 @@ async def step(client: object,
 
             client.event(**kwargs)
 
-        tasks.append(agent.pull_metrics(event_fn))
-    return await asyncio.wait(tasks, timeout=timeout)
+        tasks.append(
+            asyncio.ensure_future(
+                agent.pull_metrics(event_fn, loop=loop)
+            )
+        )
+    return await asyncio.wait(tasks, timeout=timeout, loop=loop)
 
 
 def instrumentation(client: processor.QClient,
@@ -137,7 +141,7 @@ async def main_loop(cfg: Config,
                                      agents,
                                      timeout=cfg.interval,
                                      loop=loop)
-        logger.debug(pending)
+        logger.debug("Pending tasks: {}".format(pending))
 
         te = timer()
         td = int(te - ts)
