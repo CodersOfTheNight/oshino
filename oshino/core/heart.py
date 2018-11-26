@@ -137,7 +137,7 @@ async def main_loop(cfg: Config,
                                      agents,
                                      timeout=cfg.interval,
                                      loop=loop)
-        logger.info(pending)
+        logger.debug(pending)
 
         te = timer()
         td = int(te - ts)
