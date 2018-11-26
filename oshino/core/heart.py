@@ -90,10 +90,27 @@ def instrumentation(client: processor.QClient,
                     delta: int,
                     events_count: int,
                     pending_events: int):
-    send_heartbeat(client.event, logger, int(interval * 1.5))
-    send_timedelta(client.event, logger, delta, interval)
-    send_metrics_count(client.event, logger, events_count)
-    send_pending_events_count(client.event, logger, events_count)
+    send_heartbeat(
+        event_fn=client.event,
+        logger=logger,
+        ttl=int(interval * 1.5)
+    )
+    send_timedelta(
+        event_fn=client.event,
+        logger=logger,
+        td=delta,
+        interval=interval
+    )
+    send_metrics_count(
+        event_fn=client.event,
+        logger=logger,
+        count=events_count
+    )
+    send_pending_events_count(
+        event_fn=client.event,
+        logger=logger,
+        count=events_count
+    )
 
 
 async def main_loop(cfg: Config,
@@ -123,12 +140,12 @@ async def main_loop(cfg: Config,
 
         te = time()
         td = te - ts
-        instrumentation(client,
-                        logger,
-                        cfg.interval,
-                        td,
-                        len(client.queue.events),
-                        len(pending))
+        instrumentation(client=client,
+                        logger=logger,
+                        interval=cfg.interval,
+                        delta=td,
+                        events_count=len(client.queue.events),
+                        pending_events=len(pending))
 
         await processor.flush(client, transport, logger)
         if continue_fn():
