@@ -81,11 +81,12 @@ async def step(client: object,
             client.event(**kwargs)
 
         tasks.append(
-            asyncio.ensure_future(
+            loop.create_task(
                 agent.pull_metrics(event_fn, loop=loop)
             )
         )
-    return await asyncio.wait(tasks, timeout=timeout, loop=loop)
+    (done, pending) = await asyncio.wait(tasks, timeout=timeout, loop=loop)
+    return (done, pending)
 
 
 def instrumentation(client: processor.QClient,

@@ -7,5 +7,5 @@ riemann:
 agents:
   - name: health-check
     module: oshino.agents.http_agent.HttpAgent
-    url: http://python.org
+    url: https://www.python.org
     tag: healthcheck
