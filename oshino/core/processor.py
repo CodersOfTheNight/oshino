@@ -70,7 +70,6 @@ class QClient(QueuedClient, AugmentFixture):
 
 async def flush(client, transport, logger):
     future = asyncio.Future()
-    loop = asyncio.get_event_loop()
 
     async def process_async(future):
         try:

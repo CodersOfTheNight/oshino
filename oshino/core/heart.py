@@ -132,7 +132,8 @@ async def main_loop(cfg: Config,
     loop.set_default_executor(executor)
 
     def handle_async_errors(loop, ctx):
-        logger.error("Received error on async loop: {}".format(ctx["exception"]))
+        logger.error("Received error on async loop: {}"
+                     .format(ctx["exception"]))
 
     init(agents)
 
