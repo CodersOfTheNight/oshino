@@ -17,3 +17,11 @@ def create_loop():
 def test_startup():
     with raises(SystemExit):
         main(("--config", "tests/data/test_config.yml", "--noop"))
+
+@mark.integration
+@patch("oshino.core.heart.forever", lambda: False)
+@patch("oshino.core.heart.create_loop", create_loop)
+@patch("dotenv.find_dotenv", lambda: raise RuntimeError("Simply failing"))
+def test_dot_env_fail():
+    with raises(SystemExit):
+        main(("--config", "tests/data/test_config.yml", "--noop"))
