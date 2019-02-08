@@ -1,0 +1,11 @@
+---
+interval: 5
+loglevel: DEBUG
+riemann:
+  host: riemann
+  port: 5555
+agents:
+  - name: health-check
+    module: oshino.agents.http_agent.HttpAgent
+    url: https://www.python.org
+    tag: healthcheck

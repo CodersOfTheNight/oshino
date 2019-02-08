@@ -1,3 +1,6 @@
+import sys
+import time
+
 from datetime import datetime
 
 
@@ -12,3 +15,15 @@ def current_ts():
     """
     utcnow = datetime.utcnow()
     return int(utcnow.timestamp() * 1000)
+
+
+def timer():
+    """
+    Timer used for calculate time elapsed
+    """
+    if sys.platform == "win32":
+        default_timer = time.clock
+    else:
+        default_timer = time.time
+
+    return default_timer()

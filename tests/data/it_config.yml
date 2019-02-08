@@ -1,0 +1,6 @@
+---
+interval: 10
+loglevel: DEBUG
+riemann:
+  host: localhost
+  port: 5555

@@ -103,15 +103,15 @@ class TestRiemann(object):
         assert incomplete_config.riemann.port == 5555
 
     def test_default_transport_class(self, base_config):
-        assert base_config.riemann.transport(noop=False) == TCPTransport
+        assert base_config.riemann.get_transport(noop=False) == TCPTransport
 
     def test_noop_transport_class(self, base_config):
-        assert base_config.riemann.transport(noop=True) == BlankTransport
+        assert base_config.riemann.get_transport(noop=True) == BlankTransport
 
     def test_tls_transport_class(self, base_config):
         # Hacking a bit >:)
         base_config._data["riemann"]["ca-certs"] = "/tmp/ca_bundle.pem"
-        klass = base_config.riemann.transport()
+        klass = base_config.riemann.transport
         transport = klass()
         assert transport.ca_certs == "/tmp/ca_bundle.pem"
         assert isinstance(transport, TLSTransport)

@@ -78,10 +78,14 @@ class RiemannConfig(ConfigBase):
     def ca_certs(self):
         return self._data.get("ca-certs", None)
 
-    def transport(self, noop=False):
+    def get_transport(self, noop=False):
         if noop:
             return BlankTransport
+        else:
+            return self.transport
 
+    @property
+    def transport(self):
         raw = self._data.get("transport", None)
         if raw:  # Transport is defined
             return getattr(riemann_client.transport, raw)

@@ -2,7 +2,6 @@ import asyncio
 import sys
 import logbook
 
-from time import time
 from typing import TypeVar, Generic
 from asyncio import BaseEventLoop
 
@@ -14,6 +13,7 @@ from logbook import NestedSetup
 
 from ..config import Config
 from ..version import get_version
+from ..util import timer
 from . import (send_heartbeat,
                send_timedelta,
                send_pending_events_count,
@@ -76,12 +76,17 @@ async def step(client: object,
                 kwargs["tags"] = tags
 
             if "time" not in kwargs:
-                kwargs["time"] = int(time())
+                kwargs["time"] = int(timer())
 
             client.event(**kwargs)
 
-        tasks.append(agent.pull_metrics(event_fn))
-    return await asyncio.wait(tasks, timeout=timeout)
+        tasks.append(
+            loop.create_task(
+                agent.pull_metrics(event_fn, loop=loop)
+            )
+        )
+    (done, pending) = await asyncio.wait(tasks, timeout=timeout, loop=loop)
+    return (done, pending)
 
 
 def instrumentation(client: processor.QClient,
@@ -90,10 +95,27 @@ def instrumentation(client: processor.QClient,
                     delta: int,
                     events_count: int,
                     pending_events: int):
-    send_heartbeat(client.event, logger, int(interval * 1.5))
-    send_timedelta(client.event, logger, delta, interval)
-    send_metrics_count(client.event, logger, events_count)
-    send_pending_events_count(client.event, logger, events_count)
+    send_heartbeat(
+        event_fn=client.event,
+        logger=logger,
+        ttl=int(interval * 1.5)
+    )
+    send_timedelta(
+        event_fn=client.event,
+        logger=logger,
+        td=delta,
+        interval=interval
+    )
+    send_metrics_count(
+        event_fn=client.event,
+        logger=logger,
+        count=events_count
+    )
+    send_pending_events_count(
+        event_fn=client.event,
+        logger=logger,
+        count=events_count
+    )
 
 
 async def main_loop(cfg: Config,
@@ -109,23 +131,28 @@ async def main_loop(cfg: Config,
     executor = cfg.executor_class(max_workers=cfg.executors_count)
     loop.set_default_executor(executor)
 
+    def handle_async_errors(loop, ctx):
+        logger.error("Received error on async loop: {}"
+                     .format(ctx["exception"]))
+
     init(agents)
 
     while True:
-        ts = time()
+        ts = timer()
         (done, pending) = await step(client,
                                      agents,
-                                     timeout=cfg.interval * 1.5,
+                                     timeout=cfg.interval,
                                      loop=loop)
+        logger.debug("Pending tasks: {}".format(pending))
 
-        te = time()
-        td = te - ts
-        instrumentation(client,
-                        logger,
-                        cfg.interval,
-                        td,
-                        len(client.queue.events),
-                        len(pending))
+        te = timer()
+        td = int(te - ts)
+        instrumentation(client=client,
+                        logger=logger,
+                        interval=cfg.interval,
+                        delta=td,
+                        events_count=len(client.queue.events),
+                        pending_events=len(pending))
 
         await processor.flush(client, transport, logger)
         if continue_fn():
@@ -161,7 +188,7 @@ def start_loop(cfg: Config, noop=False):
     try:
         loop.run_until_complete(main_loop(cfg,
                                           logger,
-                                          cfg.riemann.transport(noop),
+                                          cfg.riemann.get_transport(noop),
                                           forever,
                                           loop=loop))
     finally:
