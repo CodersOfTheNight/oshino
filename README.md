@@ -28,7 +28,7 @@ How to install
 
 Quickstart
 ==========
-It is highly recommended for new users to use [Quickstart Guide](quickstart.md)
+It is highly recommended for new users to use [Quickstart Guide](docs/quickstart.md)
 
 
 Riemann. What? Why? How?

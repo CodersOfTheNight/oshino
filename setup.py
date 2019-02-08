@@ -1,9 +1,11 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 from setuptools import setup, find_packages
 try:
     from pip._internal.req import parse_requirements
 except:
     from pip.req import parse_requirements
+
 from oshino.version import get_version
 
 install_reqs = list(parse_requirements("requirements/release.txt", session={}))
