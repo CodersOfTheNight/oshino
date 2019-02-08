@@ -1,4 +1,5 @@
 import re
+import json
 import asyncio
 
 from functools import partial
@@ -47,6 +48,11 @@ def regex_transform(m, logger):
         return raw.group("key"), float(raw.group("val"))
     else:
         return None
+
+
+def json_transform(m, logger, selector):
+    raw = json.loads(m)
+    return selector, raw[selector]
 
 
 def is_parsed(m):

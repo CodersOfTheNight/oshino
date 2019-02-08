@@ -1,7 +1,14 @@
+import asyncio
+
 from pytest import fixture, mark
 from oshino.agents.http_agent import HttpAgent, Success, Failure
 from oshino.agents.subprocess_agent import SubprocessAgent, StdoutAgent
 from oshino import Agent
+from .stubs import stub_server
+
+class StubAgent(Agent):
+    async def process(self, event_fn):
+        return True
 
 
 @fixture
@@ -31,27 +38,20 @@ def stdout_agent():
 @fixture
 def generic_agent():
     cfg = {"name": "Generic Agent"}
-    return Agent(cfg)
+    return StubAgent(cfg)
+
+@fixture
+def lazy_agent():
+    cfg = {
+        "name": "lazy-http",
+        "url": "http://localhost:9998/health",
+        "lazy": True,
+        "interval": 1
+    }
+    return HttpAgent(cfg)
 
 
-@fixture(scope="session", autouse=True)
-def stub_server(request):
-    from multiprocessing import Process
-    from stubilous.server import run
-    from stubilous.builder import Builder
-    builder = Builder()
-    builder.server(host="localhost", port=9998)
-    builder.route("GET", "/health")("Ok", 200)
-    config = builder.build()
-    proc = Process(target=run, args=(config,))
 
-    def on_close():
-        proc.terminate()
-        proc.join()
-
-    request.addfinalizer(on_close)
-    proc.start()
-    return proc
 
 
 class TestGenericAgent(object):
@@ -68,7 +68,7 @@ class TestGenericAgent(object):
 
     def test_logger(self, generic_agent):
         logger = generic_agent.get_logger()
-        assert logger.name == "Agent"
+        assert logger.name == "StubAgent"
 
     def test_start_stop(self, generic_agent):
         # Just touching at the moment
@@ -156,6 +156,22 @@ class TestHttpAgent(object):
 
         await http_agent.process(stub_event_fn)
         assert state == "failure"
+
+    @mark.asyncio
+    async def test_lazy_http_agent(self, lazy_agent):
+        resp = None
+        def stub_event_fn(*args, **kwargs):
+            nonlocal resp
+            resp = kwargs
+
+        await lazy_agent.pull_metrics(stub_event_fn)
+        assert resp is None
+
+        await asyncio.sleep(1)
+        await lazy_agent.pull_metrics(stub_event_fn)
+
+        assert resp["state"] == "success"
+
 
 
 class TestSubprocessAgent(object):

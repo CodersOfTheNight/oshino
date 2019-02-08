@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  oshino-query:
+    command: ["/bin/sh"]
+  riemann:
+    ports:
+      - "5555:5555"
+      - "5556:5556"
+  riemann-ui:
+    image: "rlister/riemann-dash"
+    depends_on:
+      - riemann
+    ports:
+      - "4567:4567"

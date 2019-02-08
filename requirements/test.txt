@@ -1,6 +1,7 @@
 pytest
 pytest-asyncio
 pytest-mock
+pytest-logbook
 coverage
 mock
 flake8
@@ -9,3 +10,4 @@ flask
 coveralls
 logbook
 py
+wait

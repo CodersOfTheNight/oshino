@@ -14,7 +14,9 @@ from oshino.core.heart import (step,
                                create_loop)
 from oshino.core import processor
 from oshino.agents.test_agent import StubAgent, LaggingAgent
+from oshino.agents.http_agent import HttpAgent
 from .fixtures import mock_transport, mock_client, broken_transport
+from .stubs import stub_server
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,14 @@ def stub_agent():
 @fixture
 def lagging_agent():
     return LaggingAgent({}, 2), AgentConfig({})
+
+@fixture
+def http_agent():
+    cfg = {"name": "test-http-agent",
+           "url": "http://localhost:9998/health",
+           "headers": [{"x-test-header": 42}],
+           "cookies": [{"user": "mr.awesome"}]}       
+    return HttpAgent(cfg), AgentConfig(cfg)
 
 
 @fixture
@@ -90,6 +100,18 @@ class TestHeart(object):
     async def test_step(self, stub_agent, mock_client, event_loop):
         await step(mock_client, [stub_agent], loop=event_loop, timeout=1)
         assert len(mock_client.events) == 1
+
+    @mark.asyncio
+    async def test_tasks_finished(self, http_agent, stub_server, mock_client, event_loop):
+        (done, pending) = await step(mock_client, [http_agent], loop=event_loop, timeout=1)
+        assert len(mock_client.events) == 1
+        assert len(done) == 1
+        assert len(pending) == 0
+        # Second try
+        (done, pending) = await step(mock_client, [http_agent], loop=event_loop, timeout=1)
+        assert len(mock_client.events) == 2
+        assert len(done) == 1
+        assert len(pending) == 0
 
     def test_instrumentation(self, mock_client):
         instrumentation(mock_client, logger, 0, 0, 0, 0)
@@ -162,3 +184,54 @@ class TestRobustness(object):
         for p in pending:
             await p
 
+
+    @mark.asyncio
+    async def test_w_broken_transport(self,
+                                      stub_agent,
+                                      mock_client,
+                                      broken_transport,
+                                      event_loop):
+
+        # Usual workflow
+        broken_transport.broken = False
+        assert len(mock_client.events) == 0
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0
+        # Repeat everything, just with broken transport
+        broken_transport.broken = True
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 1
+        # Check if it is able to recover
+        broken_transport.broken = False
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0
+
+    @mark.asyncio
+    async def test_w_sneaky_transport(self,
+                                      stub_agent,
+                                      mock_client,
+                                      broken_transport,
+                                      event_loop):
+
+        # Usual workflow
+        broken_transport.broken = False
+        broken_transport.sneaky = False
+        assert len(mock_client.events) == 0
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0
+        # Repeat everything, just with sneaky transport
+        broken_transport.sneaky = True
+        mock_client.event()
+        assert len(mock_client.events) == 1
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 1
+        # Check if it is able to recover
+        broken_transport.sneaky = False
+        await processor.flush(mock_client, broken_transport, logger)
+        assert len(mock_client.events) == 0

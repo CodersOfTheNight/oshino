@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  oshino:
+    build:
+      context: .
+      dockerfile: compose/Dockerfile
+    depends_on:
+      - riemann
+  oshino-query:
+    build:
+      context: .
+      dockerfile: compose/Dockerfile
+    command: ["/usr/local/bin/pytest", "tests/it_query.py"]
+    depends_on:
+      - oshino
+      - riemann
+  riemann:
+    image: "rlister/riemann"
