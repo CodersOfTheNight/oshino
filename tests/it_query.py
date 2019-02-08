@@ -10,7 +10,20 @@ from oshino.config import load
 
 logger = logging.getLogger(__name__)
 
+def with_retry(fn):
+    def wrapper(*args, **kwargs):
+        for i in range(0, 10):
+            try:
+                result = fn(*args, **kwargs)
+                return result
+            except Exception as ex:
+                time.sleep(1)
+                continue
+        pytest.fail("Retry limit reached")
+    return wrapper
 
+
+@with_retry
 def test_query_healthcheck():
     cfg = load("config.yaml")
     riemann = cfg.riemann
@@ -19,17 +32,12 @@ def test_query_healthcheck():
     logger.info("Waiting for Riemann")
 
     #wait.tcp.open(riemann.port, host=riemann.host)
-    fail_cnt = 0
-    while True:
-        try:
-            with Client(transport) as client:
-                results = client.query("tagged \"healthcheck\"")
-                assert len(results) == 0
-                time.sleep(5)
-                assert len(results) > 0
-        except ConnectionError:
-            fail_cnt += 1
-            time.sleep(0.01)
 
-        if fail_cnt > 5:
-            pytest.fail("Too many connection errors has occured while trying to reach Riemann")
+    @with_retry
+    def query():
+        with Client(transport) as client:
+            results = client.query("tagged \"healthcheck\"")
+            assert len(results) == 0
+            time.sleep(5)
+            results = client.query("tagged \"healthcheck\"")
+            assert len(results) > 0
