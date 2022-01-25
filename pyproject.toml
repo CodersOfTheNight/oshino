@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "oshino"
+version = "0.4.0"
+description = ""
+authors = ["Šarūnas Navickas <zaibacu@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/CodersOfTheNight/oshino"
+repository = "https://github.com/CodersOfTheNight/oshino"
+packages = [{ include = "oshino" }]
+
+classifiers = [
+            "Programming Language :: Python",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: Implementation :: CPython",
+            "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+aiohttp = "^3.8.1"
+Jinja2 = "^3.0.3"
+protobuf = "3.1.0.post1"
+PyYAML = "^6.0"
+riemann-client = "6.3.0"
+raven = "^6.10.0"
+pytest-asyncio = "^0.17.2"
+python-dotenv = "^0.19.2"
+requests = "^2.27.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+coverage = "^6.3"
+pytest-mock = "^3.6.1"
+mock = "^4.0.3"
+stubilous = "^0.0.8"
+Flask = "^2.0.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

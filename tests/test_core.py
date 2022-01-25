@@ -58,7 +58,7 @@ class TestInstrumentation(object):
             assert kwargs["ttl"] == 10
             reached = True
 
-        send_heartbeat(stub_event_fn, logger, 10)
+        send_heartbeat(stub_event_fn, 10)
         assert reached
 
     def test_td_ok(self):
@@ -69,7 +69,7 @@ class TestInstrumentation(object):
             assert kwargs["state"] == "ok"
             reached = True
 
-        send_timedelta(stub_event_fn, logger, 10, 100)
+        send_timedelta(stub_event_fn, 10, 100)
         assert reached
 
     def test_td_too_long(self):
@@ -80,7 +80,7 @@ class TestInstrumentation(object):
             assert kwargs["state"] == "error"
             reached = True
 
-        send_timedelta(stub_event_fn, logger, 110, 100)
+        send_timedelta(stub_event_fn, 110, 100)
         assert reached
 
     def test_metrics_count(self):
@@ -90,7 +90,7 @@ class TestInstrumentation(object):
             nonlocal reached
             reached = True
 
-        send_metrics_count(stub_event_fn, logger, 10)
+        send_metrics_count(stub_event_fn, 10)
         assert reached
 
 
@@ -114,7 +114,7 @@ class TestHeart(object):
         assert len(pending) == 0
 
     def test_instrumentation(self, mock_client):
-        instrumentation(mock_client, logger, 0, 0, 0, 0)
+        instrumentation(mock_client, 0, 0, 0, 0)
         assert len(mock_client.events) == 4
 
     @mark.asyncio
@@ -125,7 +125,7 @@ class TestHeart(object):
         assert len(mock_client.events) == 0
         mock_client.event()
         assert len(mock_client.events) == 1
-        await processor.flush(mock_client, mock_transport, logger)
+        await processor.flush(mock_client, mock_transport)
         assert len(mock_client.events) == 0
         assert not mock_transport.connected
 
@@ -134,7 +134,7 @@ class TestHeart(object):
                                  mock_client,
                                  broken_transport,
                                  event_loop):
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport)
 
     def test_agents_creation(self, base_config):
         result = create_agents(base_config.agents)
@@ -197,17 +197,17 @@ class TestRobustness(object):
         assert len(mock_client.events) == 0
         mock_client.event()
         assert len(mock_client.events) == 1
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport)
         assert len(mock_client.events) == 0
         # Repeat everything, just with broken transport
         broken_transport.broken = True
         mock_client.event()
         assert len(mock_client.events) == 1
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport)
         assert len(mock_client.events) == 1
         # Check if it is able to recover
         broken_transport.broken = False
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport)
         assert len(mock_client.events) == 0
 
     @mark.asyncio
@@ -223,15 +223,15 @@ class TestRobustness(object):
         assert len(mock_client.events) == 0
         mock_client.event()
         assert len(mock_client.events) == 1
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport)
         assert len(mock_client.events) == 0
         # Repeat everything, just with sneaky transport
         broken_transport.sneaky = True
         mock_client.event()
         assert len(mock_client.events) == 1
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport)
         assert len(mock_client.events) == 1
         # Check if it is able to recover
         broken_transport.sneaky = False
-        await processor.flush(mock_client, broken_transport, logger)
+        await processor.flush(mock_client, broken_transport)
         assert len(mock_client.events) == 0

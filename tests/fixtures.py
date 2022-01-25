@@ -1,19 +1,12 @@
 import sys
 import asyncio
 
-import logbook
-
 from concurrent.futures import ThreadPoolExecutor
 
 from pytest import fixture
 
 from .mocks import MockClient, MockTransport
 from oshino.augments.stats import SimpleMovingAverage
-
-
-@fixture
-def debug():
-    logbook.StreamHandler(sys.stdout, level=logbook.DEBUG).push_application()
 
 
 @fixture

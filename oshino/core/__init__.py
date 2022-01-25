@@ -1,4 +1,9 @@
-def send_heartbeat(event_fn, logger, ttl):
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def send_heartbeat(event_fn, ttl):
     logger.debug("Sending heartbeat")
     event_fn(metric_f=1.0,
              service="oshino.heartbeat",
@@ -6,7 +11,7 @@ def send_heartbeat(event_fn, logger, ttl):
              ttl=ttl)
 
 
-def send_timedelta(event_fn, logger, td, interval):
+def send_timedelta(event_fn, td, interval):
     logger.debug("Oshino took: {0}ms to collect metrics"
                  .format(int(td * 1000)))
     if td > interval:
@@ -20,14 +25,14 @@ def send_timedelta(event_fn, logger, td, interval):
              tags=["oshino", "instrumentation"])
 
 
-def send_metrics_count(event_fn, logger, count):
+def send_metrics_count(event_fn, count):
     logger.debug("Oshino collected {0} metrics".format(count))
     event_fn(metric_f=count,
              service="oshino.metrics_count",
              tags=["oshino", "instrumentation"])
 
 
-def send_pending_events_count(event_fn, logger, count):
+def send_pending_events_count(event_fn, count):
     logger.debug("There are {0} events which are still being processed"
                  .format(count))
     event_fn(metric_f=count,

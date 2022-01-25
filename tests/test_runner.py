@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 
 from pytest import mark, raises
@@ -18,13 +19,15 @@ def error_stub():
 @patch("oshino.core.heart.forever", lambda: False)
 @patch("oshino.core.heart.create_loop", create_loop)
 def test_startup():
+    args = argparse.Namespace(config="tests/data/test_config.yml", noop=True, debug=False)
     with raises(SystemExit):
-        main(("--config", "tests/data/test_config.yml", "--noop"))
+        main(args)
 
 @mark.integration
 @patch("oshino.core.heart.forever", lambda: False)
 @patch("oshino.core.heart.create_loop", create_loop)
 @patch("dotenv.find_dotenv", error_stub)
 def test_dot_env_fail():
+    args = argparse.Namespace(config="tests/data/test_config.yml", noop=True, debug=False)
     with raises(SystemExit):
-        main(("--config", "tests/data/test_config.yml", "--noop"))
+        main(args)

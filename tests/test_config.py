@@ -1,5 +1,5 @@
+import logging
 import mock
-import logbook
 
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
@@ -65,9 +65,6 @@ class TestBase(object):
 
     def test_base_config_interval(self, base_config):
         assert base_config.interval == 5
-
-    def test_default_log_level(self, base_config):
-        assert base_config.log_level == logbook.INFO
 
     def test_sentry_dsn(self, base_config):
         assert base_config.sentry_dsn == "http://test:test@sentry.io"
