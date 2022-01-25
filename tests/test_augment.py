@@ -1,5 +1,5 @@
+import logging
 from pytest import mark, raises
-from logbook import Logger
 
 from oshino.core import processor
 from oshino.augments import InvalidAugment
@@ -9,7 +9,7 @@ from .fixtures import (mock_client,
                        executor,
                        moving_avg)
 
-logger = Logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class TestAugment(object):
@@ -26,7 +26,7 @@ class TestAugment(object):
                 print("Got event: {0}".format(event))
                 events_received += 1
 
-        processor.register_augment(mock_client, "test", stub_augment, logger)
+        processor.register_augment(mock_client, "test", stub_augment)
         mock_client.event(service="test", tags=["test"])
         mock_client.event(service="test", tags=["test"])
         mock_client.event(service="test", tags=["test"])
@@ -51,7 +51,7 @@ class TestAugment(object):
                 except StopIteration:
                     break
 
-        processor.register_augment(mock_client, "test", stub_augment, logger)
+        processor.register_augment(mock_client, "test", stub_augment)
 
         for i in range(0, 10):
             mock_client.event(service="test", metric=i*10)
@@ -86,7 +86,7 @@ class TestAugment(object):
                 te = time()
                 print("Done sleeping: {0}".format(te - ts))
 
-        processor.register_augment(mock_client, "test", stub_augment, logger)
+        processor.register_augment(mock_client, "test", stub_augment)
         ts = time()
         mock_client.event(service="test")
         te = time()
@@ -115,8 +115,7 @@ class TestStatsAugments(object):
     async def test_moving_average(self, mock_client, moving_avg, event_loop):
         processor.register_augment(mock_client,
                                    moving_avg.key,
-                                   moving_avg.activate,
-                                   logger)
+                                   moving_avg.activate)
 
         print("Key: {0}".format(moving_avg.key))
         for i in range(9):

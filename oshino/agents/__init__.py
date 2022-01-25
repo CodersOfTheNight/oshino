@@ -1,3 +1,5 @@
+import logging
+
 from abc import ABC, abstractmethod
 
 from oshino.util import current_ts, timer
@@ -24,8 +26,7 @@ class Agent(ABC):
         return "{0}.".format(self.name)
 
     def get_logger(self):
-        from logbook import Logger
-        return Logger(self.__class__.__name__)
+        return logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
     async def process(self, event_fn):
@@ -47,10 +48,10 @@ class Agent(ABC):
         logger = self.get_logger()
 
         ts = timer()
-        logger.trace("Waiting for process event")
+        # logger.trace("Waiting for process event")
         result = await self.process(event_fn)
         td = int(timer() - ts)
-        logger.trace("It took: {}ms".format(td))
+        # logger.trace("It took: {}ms".format(td))
         self._last_run = current_ts()
         return result
 
@@ -70,11 +71,11 @@ class Agent(ABC):
         """
         logger = self.get_logger()
         now = current_ts()
-        logger.trace("Current time: {0}".format(now))
-        logger.trace("Last Run: {0}".format(self._last_run))
+        # logger.trace("Current time: {0}".format(now))
+        # logger.trace("Last Run: {0}".format(self._last_run))
         delta = (now - self._last_run)
-        logger.trace("Delta: {0}, Interval: {1}"
-                     .format(delta, self.interval * 1000))
+        # logger.trace("Delta: {0}, Interval: {1}"
+        #              .format(delta, self.interval * 1000))
         return delta > self.interval * 1000
 
     @property

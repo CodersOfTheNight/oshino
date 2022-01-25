@@ -1,9 +1,9 @@
+import logging
 import asyncio
 
 from copy import copy
 from time import sleep
 
-from logbook import Logger
 from queue import Queue
 
 from riemann_client.client import QueuedClient
@@ -11,7 +11,7 @@ from riemann_client.transport import RiemannError
 from riemann_client import riemann_pb2
 
 
-logger = Logger("Processor")
+logger = logging.getLogger("Processor")
 
 
 class StopEvent(object):
@@ -68,7 +68,7 @@ class QClient(QueuedClient, AugmentFixture):
         return response
 
 
-async def flush(client, transport, logger):
+async def flush(client, transport):
     future = asyncio.Future()
 
     async def process_async(future):
@@ -77,7 +77,7 @@ async def flush(client, transport, logger):
             transport.connect()
             client.flush(transport)
         except (RiemannError, ConnectionRefusedError) as ex:
-            logger.warn(ex)
+            logger.warning(ex)
             future.set_result(False)
             logger.debug("Flush failed due to connection errors")
         except Exception as ex:
@@ -95,7 +95,7 @@ async def flush(client, transport, logger):
     return future.result()
 
 
-def register_augment(client, key, augment_fn, logger):
+def register_augment(client, key, augment_fn):
     if key not in client.augments:
         client.augments[key] = []
 

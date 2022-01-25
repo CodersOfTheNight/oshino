@@ -1,6 +1,6 @@
 import os
 import yaml
-import logbook
+import logging
 import riemann_client.transport
 
 from functools import partial
@@ -148,11 +148,6 @@ class Config(ConfigBase):
         return self._data["interval"]
 
     @property
-    def log_level(self):
-        raw = self._data.get("loglevel", "INFO").upper()
-        return getattr(logbook, raw)
-
-    @property
     def agents(self):
         return [AgentConfig(a) for a in self._data.get("agents", [])]
 
@@ -186,4 +181,4 @@ def load(config_file):
         def env_get():
             return dict(os.environ)
         tmpl = Template(f.read())
-        return Config(yaml.load(tmpl.render(**env_get())))
+        return Config(yaml.safe_load(tmpl.render(**env_get())))
